@@ -15,30 +15,17 @@ RoomThread3v3::RoomThread3v3(Room *room)
 }
 
 QStringList RoomThread3v3::getGeneralsWithoutExtension() const{
-    QList<const General *> generals;
-
     const Package *stdpack = Sanguosha->findChild<const Package *>("standard");
     const Package *windpack = Sanguosha->findChild<const Package *>("wind");
 
-    generals = stdpack->findChildren<const General *>();
+    QList<const General *> generals = stdpack->findChildren<const General *>();
     generals << windpack->findChildren<const General *>();
-
-    // remove hidden generals
-    QMutableListIterator<const General *> itor(generals);
-    while(itor.hasNext()){
-        itor.next();
-
-        if(itor.value()->isHidden())
-            itor.remove();
-    }
-
-    generals << Sanguosha->getGeneral("xiaoqiao");
-
-    Q_ASSERT(generals.length() == 32);
 
     QStringList general_names;
     foreach(const General *general, generals)
         general_names << general->objectName();
+
+    general_names.removeOne("yuji");
 
     return general_names;
 }

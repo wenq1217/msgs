@@ -122,6 +122,9 @@ public:
                 if(p->hasLordSkill("songwei") && player->askForSkillInvoke("songwei", who)){
                     room->playSkillEffect(objectName(), 1);
                     p->drawCards(1);
+                }else if(p->hasSkill("weidi") && player->askForSkillInvoke("songwei", who)){
+                    room->playSkillEffect("weidi");
+                    p->drawCards(1);
                 }
             }
         }
@@ -837,7 +840,7 @@ public:
         QList<ServerPlayer *> dongzhuos;
         QList<ServerPlayer *> players = room->getOtherPlayers(player);
         foreach(ServerPlayer *p, players){
-            if(p->hasLordSkill("baonue")){
+            if(p->hasLordSkill("baonue")||p->hasSkill("weidi")){
                 dongzhuos << p;
             }
         }
@@ -854,8 +857,10 @@ public:
                 room->judge(judge);
 
                 if(judge.isGood()){
-                    room->playSkillEffect(objectName());
-
+                    if(dongzhuo->hasLordSkill("baonue"))
+                        room->playSkillEffect("baonue");
+                    else
+                        room->playSkillEffect("weidi");
                     RecoverStruct recover;
                     recover.who = player;
                     room->recover(dongzhuo, recover);
@@ -906,6 +911,12 @@ ThicketPackage::ThicketPackage()
     related_skills.insertMulti("haoshi", "#haoshi");
     related_skills.insertMulti("haoshi", "#haoshi-give");
 
+    dongzhuo = new General(this, "dongzhuo$", "qun", 8);
+    dongzhuo->addSkill(new Jiuchi);
+    dongzhuo->addSkill(new Roulin);
+    dongzhuo->addSkill(new Benghuai);
+    dongzhuo->addSkill(new Baonue);
+
     jiaxu = new General(this, "jiaxu", "qun", 3);
     jiaxu->addSkill(new Skill("wansha", Skill::Compulsory));
     jiaxu->addSkill(new Weimu);
@@ -913,12 +924,6 @@ ThicketPackage::ThicketPackage()
     jiaxu->addSkill(new Luanwu);
 
     related_skills.insertMulti("luanwu", "#@chaos");
-
-    dongzhuo = new General(this, "dongzhuo$", "qun", 8);
-    dongzhuo->addSkill(new Jiuchi);
-    dongzhuo->addSkill(new Roulin);
-    dongzhuo->addSkill(new Benghuai);
-    dongzhuo->addSkill(new Baonue);
 
     addMetaObject<DimengCard>();
     addMetaObject<LuanwuCard>();

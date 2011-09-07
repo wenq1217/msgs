@@ -51,22 +51,52 @@ void QuhuCard::use(Room *room, ServerPlayer *xunyu, const QList<ServerPlayer *> 
             return;
         }
 
-        room->playSkillEffect("#tunlang");
         ServerPlayer *wolf = room->askForPlayerChosen(xunyu, wolves, "quhu");
+
+        LogMessage log;
+        log.type = "#QuhuFightWolf";
+        log.from = tiger;
+        log.to << wolf;
+        room->sendLog(log);
 
         DamageStruct damage;
         damage.from = tiger;
         damage.to = wolf;
-
-        room->damage(damage);
-
+        if(damage.from->hasSkill("jueqing")){
+            LogMessage log;
+            log.type = "#Jueqing";
+            log.from = damage.from;
+            log.to << damage.to;
+            log.arg = QString::number(1);
+            room->sendLog(log);
+            room->playSkillEffect("jueqing");
+            room->loseHp(damage.to, 1);
+        }else{
+            room->damage(damage);
+        }
     }else{
+        LogMessage log;
+        log.type = "#QuhuFailed";
+        log.from = xunyu;
+        log.to << tiger;
+        room->sendLog(log);
+
         DamageStruct damage;
         damage.card = NULL;
         damage.from = tiger;
         damage.to = xunyu;
-
-        room->damage(damage);
+        if(damage.from->hasSkill("jueqing")){
+            LogMessage log;
+            log.type = "#Jueqing";
+            log.from = damage.from;
+            log.to << damage.to;
+            log.arg = QString::number(1);
+            room->sendLog(log);
+            room->playSkillEffect("jueqing");
+            room->loseHp(damage.to, 1);
+        }else{
+            room->damage(damage);
+        }
     }
 }
 
@@ -329,6 +359,25 @@ public:
     }
 };
 
+class Xiangwei: public GameStartSkill{
+public:
+    Xiangwei():GameStartSkill("xiangwei"){
+
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return GameStartSkill::triggerable(target) && target->getGeneralName() == "pangde";
+    }
+
+    virtual void onGameStart(ServerPlayer *player) const{
+        if(player->askForSkillInvoke(objectName())){
+            Room *room = player->getRoom();
+            room->transfigure(player, "sp_pangde", true, false);
+            room->setPlayerProperty(player, "kingdom", "wei");
+        }
+    }
+};
+
 class Lianhuan: public OneCardViewAsSkill{
 public:
     Lianhuan():OneCardViewAsSkill("lianhuan"){
@@ -365,12 +414,17 @@ public:
 
         Room *room = pangtong->getRoom();
         if(pangtong->askForSkillInvoke(objectName(), data)){
-            room->broadcastInvoke("animate", "lightbox:$niepan");
-            room->playSkillEffect(objectName());
+            int x = qrand()%2;
+            if(x == 0)
+                room->broadcastInvoke("animate", "lightbox:$niepan1");
+            else
+                room->broadcastInvoke("animate", "lightbox:$niepan2");
+            room->playSkillEffect(objectName(),x+1);
 
             pangtong->loseMark("@nirvana");
 
-            room->setPlayerProperty(pangtong, "hp", 3);
+            int nheal = qMin(pangtong->getMaxHP(),3);
+            room->setPlayerProperty(pangtong, "hp", nheal);
             pangtong->throwAllCards();
             pangtong->drawCards(3);
 
@@ -559,7 +613,7 @@ public:
 FirePackage::FirePackage()
     :Package("fire")
 {
-    General *xunyu, *dianwei, *wolong, *pangtong, *taishici, *yuanshao, *shuangxiong, *pangde;
+    General *xunyu, *dianwei, *wolong, *pangtong, *taishici, *yuanshao, *yanliangwenchou, *pangde;
 
     xunyu = new General(this, "xunyu", "wei", 3);
     xunyu->addSkill(new Quhu);
@@ -587,10 +641,11 @@ FirePackage::FirePackage()
     yuanshao->addSkill(new Luanji);
     yuanshao->addSkill(new Xueyi);
 
-    shuangxiong = new General(this, "shuangxiong", "qun");
-    shuangxiong->addSkill(new Shuangxiong);
+    yanliangwenchou = new General(this, "yanliangwenchou", "qun");
+    yanliangwenchou->addSkill(new Shuangxiong);
 
     pangde = new General(this, "pangde", "qun");
+    pangde->addSkill(new Xiangwei);
     pangde->addSkill(new Mengjin);
     pangde->addSkill("mashu");
 

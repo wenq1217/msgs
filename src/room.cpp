@@ -1790,7 +1790,7 @@ void Room::sendDamageLog(const DamageStruct &data){
 
 bool Room::hasWelfare(const ServerPlayer *player) const{
     if(mode == "06_3v3")
-        return player->isLord() || player->getRole() == "renegade";
+        return (player->isLord() || player->getRole() == "renegade") && !(player->getGeneralName() == "shencaocao");
     else if(mode == "04_1v3")
         return false;
     else
@@ -2487,10 +2487,10 @@ ServerPlayer *Room::getLord() const{
     return NULL;
 }
 
-void Room::doGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only){
+void Room::doGuanxing(ServerPlayer *player, const QList<int> &cards, bool up_only){
     QList<int> top_cards, bottom_cards;
 
-    AI *ai = zhuge->getAI();
+    AI *ai = player->getAI();
     if(ai){
         ai->askForGuanxing(cards, top_cards, bottom_cards, up_only);
     }else if(up_only && cards.length() == 1){
@@ -2499,13 +2499,13 @@ void Room::doGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only
         QString guanxing_str = Card::IdsToStrings(cards).join("+");
         if(up_only)
             guanxing_str.append("!");
-        zhuge->invoke("doGuanxing", guanxing_str);
-        getResult("replyGuanxingCommand", zhuge);
+        player->invoke("doGuanxing", guanxing_str);
+        getResult("replyGuanxingCommand", player);
 
         if(result.isEmpty()){
             // the method "doGuanxing" without any arguments
             // means to clear all the guanxing items
-            zhuge->invoke("doGuanxing");
+            player->invoke("doGuanxing");
             foreach(int card_id, cards)
                 draw_pile->prepend(card_id);
             return;
@@ -2544,10 +2544,17 @@ void Room::doGuanxing(ServerPlayer *zhuge, const QList<int> &cards, bool up_only
     }
 
     LogMessage log;
-    log.type = "#GuanxingResult";
-    log.from = zhuge;
-    log.arg = QString::number(top_cards.length());
-    log.arg2 = QString::number(bottom_cards.length());
+
+    if(player->hasSkill("xinzhan")){
+        log.type = "#XinzhanResult";
+        log.from = player;
+        log.arg = QString::number(top_cards.length());
+    }else{
+        log.type = "#GuanxingResult";
+        log.from = player;
+        log.arg = QString::number(top_cards.length());
+        log.arg2 = QString::number(bottom_cards.length());
+    }
     sendLog(log);
 
     QListIterator<int> i(top_cards);

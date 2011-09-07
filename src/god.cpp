@@ -992,7 +992,8 @@ void JilveCard::onUse(Room *room, const CardUseStruct &card_use) const{
         room->acquireSkill(shensimayi, "wansha");
         shensimayi->tag["JilveWansha"] = true;
     }else
-        room->askForUseCard(shensimayi, "@zhiheng", "@jilve-zhiheng");
+        if(!room->askForUseCard(shensimayi, "@zhiheng", "@jilve-zhiheng"))
+            shensimayi->gainMark("@bear", 1);;
 }
 
 // wansha & zhiheng

@@ -38,7 +38,7 @@
        <x>10</x>
        <y>140</y>
        <width>441</width>
-       <height>171</height>
+       <height>181</height>
       </rect>
      </property>
      <property name="title">
@@ -48,12 +48,12 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>30</y>
+        <y>20</y>
         <width>421</width>
         <height>71</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
+      <layout class="QVBoxLayout" name="AudioChooseVLayout">
        <item>
         <widget class="QLabel" name="setupBgMusicLabel">
          <property name="text">
@@ -108,12 +108,12 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>110</y>
-        <width>421</width>
+        <y>100</y>
+        <width>424</width>
         <height>18</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <layout class="QHBoxLayout" name="CheckBoxHLayout">
        <item>
         <widget class="QCheckBox" name="enableEffectCheckBox">
          <property name="text">
@@ -147,32 +147,90 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>140</y>
-        <width>411</width>
-        <height>21</height>
+        <y>120</y>
+        <width>301</width>
+        <height>54</height>
        </rect>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_5">
+      <layout class="QVBoxLayout" name="VolumeVLayout">
        <item>
-        <widget class="QLabel" name="volumeLabel">
+        <layout class="QHBoxLayout" name="EffectHLayout">
+         <item>
+          <widget class="QLabel" name="volumeLable_Effect">
+           <property name="text">
+            <string>Effects Volume</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="volumeSlider_Effect">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="BgmHLayout">
+         <item>
+          <widget class="QLabel" name="volumeLable_Bgm">
+           <property name="text">
+            <string>BGMusic Volume</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSlider" name="volumeSlider_Bgm">
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>100</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>120</y>
+        <width>111</width>
+        <height>62</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="EditionVLayout">
+       <item>
+        <widget class="QRadioButton" name="classicalRdo">
          <property name="text">
-          <string>Volume</string>
-         </property>
-         <property name="buddy">
-          <cstring>volumeSlider</cstring>
+          <string>Classical</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QSlider" name="volumeSlider">
-         <property name="maximum">
-          <number>100</number>
+        <widget class="QRadioButton" name="professional1Rdo">
+         <property name="text">
+          <string>Professional1</string>
          </property>
-         <property name="value">
-          <number>100</number>
-         </property>
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="professional2Rdo">
+         <property name="text">
+          <string>Professional2</string>
          </property>
         </widget>
        </item>
@@ -273,7 +331,7 @@
        <rect>
         <x>160</x>
         <y>100</y>
-        <width>101</width>
+        <width>111</width>
         <height>16</height>
        </rect>
       </property>
@@ -281,14 +339,27 @@
        <string>Circular view</string>
       </property>
      </widget>
+     <widget class="QCheckBox" name="enableLogBgCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>280</x>
+        <y>100</y>
+        <width>151</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Enable Log Background</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QGroupBox" name="fontSetupGroupBox">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>320</y>
+       <y>330</y>
        <width>441</width>
-       <height>91</height>
+       <height>81</height>
       </rect>
      </property>
      <property name="title">
@@ -329,7 +400,7 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>124</x>
+        <x>120</x>
         <y>23</y>
         <width>131</width>
         <height>20</height>

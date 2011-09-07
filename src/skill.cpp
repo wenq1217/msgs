@@ -3,6 +3,7 @@
 #include "player.h"
 #include "room.h"
 #include "client.h"
+#include "settings.h"
 #include "standard.h"
 #include "scenario.h"
 
@@ -43,6 +44,9 @@ QString Skill::getText() const{
     case Skill::Wake: skill_name.append(tr(" [Wake]")); break;
     }
 
+    if(objectName() == "weidi")
+        skill_name.append(tr(" [Compulsory]"));
+
     return skill_name;
 }
 
@@ -64,7 +68,7 @@ void Skill::initMediaSource(){
     if(parent()){
         int i;
         for(i=1; ;i++){
-            QString effect_file = QString("audio/skill/%1%2.ogg").arg(objectName()).arg(i);
+            QString effect_file = QString("audio/skill/%1%2%3.ogg").arg(Config.value("EffectEdition").toString()).arg(objectName()).arg(i);
             if(QFile::exists(effect_file))
                 sources << effect_file;
             else
@@ -72,7 +76,7 @@ void Skill::initMediaSource(){
         }
 
         if(sources.isEmpty()){
-            QString effect_file = QString("audio/skill/%1.ogg").arg(objectName());
+            QString effect_file = QString("audio/skill/%1%2.ogg").arg(Config.value("EffectEdition").toString()).arg(objectName());
             if(QFile::exists(effect_file))
                 sources << effect_file;
         }

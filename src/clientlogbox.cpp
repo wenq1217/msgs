@@ -23,7 +23,7 @@ void ClientLogBox::appendLog(
     QString from;
     if(!from_general.isEmpty()){
         from = ClientInstance->getPlayerName(from_general);
-        from = bold(from);
+        from = cusbold(from,"#00ff00");
     }
 
     QString to;
@@ -34,7 +34,7 @@ void ClientLogBox::appendLog(
         to = to_list.join(",");
         arg = Sanguosha->translate(arg);
 
-        to = bold(to);
+        to = cusbold(to,"red");
     }
 
     QString log;
@@ -44,11 +44,14 @@ void ClientLogBox::appendLog(
         QString log_name = card->getLogName();
 
         log = Sanguosha->translate(type);
+
+        log = QString("<font color='%2'>%1</font>").arg(log).arg(Config.TextEditColor.name());
+
+        log_name = bold(log_name);
         log.replace("%from", from);
         log.replace("%to", to);
         log.replace("%card", log_name);
 
-        log = QString("<font color='%2'>%1</font>").arg(log).arg(Config.TextEditColor.name());
         append(log);
 
         return;
@@ -57,15 +60,17 @@ void ClientLogBox::appendLog(
     if(!card_str.isEmpty()){
         const Card *card = Card::Parse(card_str);
         QString card_name = card->getLogName();
+        card_name = bold(card_name);
 
         if(card->isVirtualCard()){
             QString skill_name = Sanguosha->translate(card->getSkillName());
+            skill_name = cusbold(skill_name,"yellow");
 
             QList<int> card_ids = card->getSubcards();
             QStringList subcard_list;
             foreach(int card_id, card_ids){
                 const Card *subcard = Sanguosha->getCard(card_id);
-                subcard_list << subcard->getLogName();
+                subcard_list << bold(subcard->getLogName());
             }
 
             QString subcard_str = subcard_list.join(",");
@@ -115,7 +120,12 @@ void ClientLogBox::appendLog(
 
 QString ClientLogBox::bold(const QString &str) const{
     return QString("<font color='%1'><b>%2</b></font>")
-            .arg(Config.TextEditColor.name()).arg(str);
+            .arg("yellow").arg(str);
+}
+
+QString ClientLogBox::cusbold(const QString &str,const QString &color) const{
+    return QString("<font color='%1'><b>%2</b></font>")
+            .arg(color).arg(str);
 }
 
 void ClientLogBox::appendLog(const QString &log_str){

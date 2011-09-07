@@ -487,17 +487,22 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
     static int four=0;
     static int five=0;
     static int six=0;
+    static int six_3v3=0;
     static int seven=0;
     static int eight=0;
     static int nine=0;
-    static int cxw=0;
-    static int cxw2=1;
+    static int cxw=0;//circle view correct data
+    static int stw=1;//standard view correct data
 
     int player_count = photos.length() + 1;
     switch(player_count){
     case 4: four = 1; break;
     case 5: five = 1; break;
-    case 6: six = 1; break;
+    case 6: if(ServerInfo.GameMode == "06_3v3")
+                six_3v3 = 1;
+            else
+                six = 1;
+            break;
     case 7: seven = 1; break;
     case 8: eight = 1; break;
     case 9: nine = 1; break;
@@ -505,19 +510,19 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
 
     if(Config.value("CircularView").toBool()){
         cxw=1;
-        cxw2=0;
+        stw=0;
     }
 
     static const QPointF pos[] = {
-        QPointF((-630+cxw2*129)+(cxw*four*70)+(cxw*six*50), (-70+cxw2)+(-four*cxw*80)+(-six*cxw*50)), // 0:zhugeliang
-        QPointF((-630+cxw2*129)+(cxw*eight*50)+(cxw*five*50)+(cxw*nine*20), (-270-cxw2*3)+(cxw*five*100)), // 1:wolong
-        QPointF((-487+cxw2*131)+(cxw*six*80)+(-seven*cxw*25)+(cxw*nine*45), (-316+cxw2*22)+(cxw*six*15)+(cxw*seven*30)), // 2:shenzhugeliang
-        QPointF((-344+cxw2*133)+(-eight*cxw*50)+(cxw*five*15)+(cxw*seven*50)+(cxw*nine*65), (-320+cxw2*26)), // 3:lusu
-        QPointF((-201+cxw2*135), -324+cxw2*30), // 4:dongzhuo
-        QPointF((-58+cxw2*137)+(cxw*eight*50)+(-five*cxw*15)+(-seven*cxw*50)+(-nine*cxw*65), (-320+cxw2*26)), // 5:caocao
-        QPointF((85+cxw2*139)+(-six*cxw*80)+(seven*cxw*25)+(-nine*cxw*45), (-316+cxw2*22)+(six*cxw*15)+(seven*cxw*30)), // 6:shuangxiong
-        QPointF((228+cxw2*141)+(-eight*cxw*50)+(-five*cxw*50)+(-nine*cxw*20), (-270-cxw2*3)+(five*cxw*100)), // 7:shenguanyu
-        QPointF((228+cxw2*141)+(-four*cxw*70)+(-six*cxw*50), (-70+cxw2)+(-four*cxw*80)+(-six*cxw*50)), // 8:xiaoqiao
+        QPointF((-630+stw*129)+(cxw*five*50)+(cxw*six_3v3*50)+(cxw*six*100)+(cxw*seven*100)+(cxw*eight*50)+(cxw*nine*20), (-70+stw)-(cxw*four*80)), // 0:zhugeliang
+        QPointF((-630+stw*129)+(cxw*five*50)+(cxw*six_3v3*50)+(cxw*eight*50)+(cxw*nine*20), (-270-stw*3)+(cxw*five*150)), // 1:wolong
+        QPointF((-487+stw*131)+(cxw*six*80)+(cxw*seven*5)+(cxw*nine*45), (-316+stw*22)+(cxw*six*15)+(cxw*seven*30)), // 2:shenzhugeliang
+        QPointF((-344+stw*133)+(cxw*five*15)+(cxw*seven*50)-(cxw*eight*50)+(cxw*nine*65), (-320+stw*26)), // 3:lusu
+        QPointF((-201+stw*135),(-324+stw*30)), // 4:dongzhuo
+        QPointF(( -58+stw*137)-(cxw*five*15)-(cxw*seven*50)+(cxw*eight*50)-(cxw*nine*65), (-320+stw*26)), // 5:caocao
+        QPointF((  85+stw*139)-(cxw*six*80)-(cxw*seven*5)-(cxw*nine*45), (-316+stw*22)+(cxw*six*15)+(cxw*seven*30)), // 6:shuangxiong
+        QPointF(( 228+stw*141)-(cxw*five*50)-(cxw*six_3v3*50)-(cxw*eight*50)-(cxw*nine*20), (-270-stw*3)+(cxw*five*150)), // 7:shenguanyu
+        QPointF(( 228+stw*141)-(cxw*five*50)-(cxw*six_3v3*50)-(cxw*six*100)-(cxw*seven*100)-(cxw*eight*50)-(cxw*nine*20), (-70+stw)-(cxw*four*80)), // 8:xiaoqiao
     };
 
     static int indices_table[][9] = {
@@ -534,11 +539,11 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
 
     static int indices_table_3v3[][5] = {
         {0, 3, 4, 5, 8}, // lord
-        {0, 1, 4, 5, 6}, // loyalist (right), same with rebel (right)
-        {2, 3, 4, 7, 8}, // rebel (left), same with loyalist (left)
+        {0, 1, 3, 4, 5}, // loyalist (right), same with rebel (right)
+        {3, 4, 5, 7, 8}, // rebel (left), same with loyalist (left)
         {0, 3, 4, 5, 8}, // renegade, same with lord
-        {0, 1, 4, 5, 6}, // rebel (right)
-        {2, 3, 4, 7, 8}, // loyalist (left)
+        {0, 1, 3, 4, 5}, // rebel (right)
+        {3, 4, 5, 7, 8}, // loyalist (left)
     };
 
     QList<QPointF> positions;
@@ -559,7 +564,12 @@ QList<QPointF> RoomScene::getPhotoPositions() const{
 
 void RoomScene::changeTextEditBackground(){
     QPalette palette;
-    palette.setBrush(QPalette::Base, backgroundBrush());
+    QPixmap pixmap("image/system/chatpanel.png");
+    QBrush brush(pixmap);
+    if(Config.value("EnableLogBg").toBool())
+        palette.setBrush(QPalette::Base, brush);
+    else
+        palette.setBrush(QPalette::Base, backgroundBrush());
     chat_box->setPalette(palette);
     log_box->setPalette(palette);
 }
@@ -1313,9 +1323,10 @@ void RoomScene::acquireSkill(const ClientPlayer *player, const QString &skill_na
 }
 
 void RoomScene::updateSkillButtons(){
+    int player_count = photos.length() + 1;
     foreach(const Skill* skill, Self->getVisibleSkillList()){
         if(skill->isLordSkill()){
-            if(Self->getRole() != "lord" || ServerInfo.GameMode == "06_3v3")
+            if(Self->getRole() != "lord" || ServerInfo.GameMode == "06_3v3" || player_count == 2)
                 continue;
         }
 
@@ -2924,7 +2935,7 @@ void RoomScene::onGameStart(){
     BackgroundMusic = SoundEngine->play2D(filename, true, false, true);
 
     if(BackgroundMusic)
-        BackgroundMusic->setVolume(Config.Volume);
+        BackgroundMusic->setVolume(Config.BGMVolume);
 #else
     if (!BackgroundMusic) {
         SoundOutput = new Phonon::AudioOutput(Phonon::GameCategory, this);

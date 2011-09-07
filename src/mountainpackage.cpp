@@ -473,18 +473,32 @@ ZhibaCard::ZhibaCard(){
 }
 
 bool ZhibaCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && to_select->hasLordSkill("sunce_zhiba") && to_select != Self && !to_select->isKongcheng();
+    return targets.isEmpty() && (to_select->hasLordSkill("zhiba")||to_select->hasSkill("weidi")) && to_select != Self && !to_select->isKongcheng();
 }
 
 void ZhibaCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *sunce = targets.first();
-    if(sunce->getMark("hunzi") > 0 &&
-       room->askForChoice(sunce, "zhiba_pindian", "accept+reject") == "reject")
-    {
+    ServerPlayer *player = targets.first();
+    if(player->getMark("hunzi") > 0 && room->askForChoice(player, "zhiba_pindian", "accept+reject") == "reject"){
+        LogMessage log;
+        log.type = "#ZhibaPindianReject";
+        log.from = player;
+        room->sendLog(log);
         return;
     }
 
-    source->pindian(sunce, "zhiba", this);
+    QList<ServerPlayer *> all_players = room->getAllPlayers();
+    foreach(ServerPlayer *p, all_players){
+        if(p->isLord() && p->hasLordSkill("zhiba")){
+            source->pindian(player, "zhiba", this);
+            return;
+        }
+    }
+
+    LogMessage log;
+    log.type = "#ZhibaFailed";
+    log.from = source;
+    log.to << player;
+    room->sendLog(log);
 }
 
 class ZhibaPindian: public OneCardViewAsSkill{
@@ -509,9 +523,9 @@ public:
     }
 };
 
-class SunceZhiba: public TriggerSkill{
+class Zhiba: public TriggerSkill{
 public:
-    SunceZhiba():TriggerSkill("sunce_zhiba$"){
+    Zhiba():TriggerSkill("zhiba$"){
         events << GameStart << Pindian;
     }
 
@@ -524,11 +538,11 @@ public:
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        Room *room = player->getRoom();
         if(event == GameStart){
             if(!player->hasSkill(objectName()))
                 return false;
 
-            Room *room = player->getRoom();
             foreach(ServerPlayer *p, room->getAlivePlayers()){
                 if(!p->hasSkill("zhiba_pindian"))
                     room->attachSkillToPlayer(p, "zhiba_pindian");
@@ -536,9 +550,12 @@ public:
         }else if(event == Pindian){
             PindianStar pindian = data.value<PindianStar>();
             if(pindian->reason == "zhiba" &&
-               pindian->to->hasSkill(objectName()) &&
-               pindian->from_card->getNumber() <= pindian->to_card->getNumber())
-            {
+               pindian->from_card->getNumber() <= pindian->to_card->getNumber()){
+                if(pindian->to->hasSkill("zhiba"))
+                    room->playSkillEffect("zhiba");
+                else if(pindian->to->hasSkill("weidi"))
+                    room->playSkillEffect("weidi");
+
                 pindian->to->obtainCard(pindian->from_card);
                 pindian->to->obtainCard(pindian->to_card);
             }
@@ -1106,7 +1123,7 @@ MountainPackage::MountainPackage()
     General *sunce = new General(this, "sunce$", "wu");
     sunce->addSkill(new Jiang);
     sunce->addSkill(new Hunzi);
-    sunce->addSkill(new SunceZhiba);
+    sunce->addSkill(new Zhiba);
 
     General *erzhang = new General(this, "erzhang", "wu", 3);
     erzhang->addSkill(new Zhijian);

@@ -23,6 +23,10 @@ Room *ServerPlayer::getRoom() const{
 void ServerPlayer::playCardEffect(const Card *card){
     if(card->isVirtualCard() && !card->isMute()){
         QString skill_name = card->getSkillName();
+        skill_name.remove("mingce");
+        skill_name.remove("xuanfeng");
+        if(skill_name.isEmpty())
+            return;
         const Skill *skill = Sanguosha->getSkill(skill_name);
         int index = -1;
         if(skill)
@@ -592,6 +596,8 @@ int ServerPlayer::getGeneralMaxHP() const{
         }
 
         max_hp = qMin(max_hp, 8);
+        if(getGeneralName()=="shencaocao"||getGeneral2Name()=="shencaocao")
+            max_hp = qMin(max_hp,3);
     }
 
     if(room->hasWelfare(this))

@@ -21,6 +21,7 @@ public:
 
 private:
     QString bold(const QString &str) const;
+    QString cusbold(const QString &str,const QString &color) const;
 
 public slots:
     void appendLog(const QString &log_str);

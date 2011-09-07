@@ -44,8 +44,8 @@ bool BanPair::isBanned(const QString &first, const QString &second){
 
 void BanPair::loadBanPairs(){
     // special cases
-    AllBanSet << "shencaocao" << "dongzhuo";
-    SecondBanSet << "jiangboyue" << "luboyan";
+    AllBanSet << "shencaocao" << "dongzhuo" << "zhoutai";
+    SecondBanSet << "jiangboyue" << "luboyan" << "zuoci";
 
     QFile file(BanPairFilename);
     if(file.open(QIODevice::ReadOnly)){

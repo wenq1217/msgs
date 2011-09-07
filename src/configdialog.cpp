@@ -35,8 +35,18 @@ ConfigDialog::ConfigDialog(QWidget *parent) :
     ui->enableBgMusicCheckBox->setChecked(Config.EnableBgMusic);
     ui->fitInViewCheckBox->setChecked(Config.FitInView);
     ui->circularViewCheckBox->setChecked(Config.value("CircularView", false).toBool());
+    ui->enableLogBgCheckBox->setChecked(Config.value("EnableLogBg", false).toBool());
 
-    ui->volumeSlider->setValue(100 * Config.Volume);
+    ui->volumeSlider_Effect->setValue(100 * Config.EffectVolume);
+    ui->volumeSlider_Bgm->setValue(100 * Config.BGMVolume);
+    if(Config.value("EffectEdition") == "classical/")
+        ui->classicalRdo->setChecked(true);
+    else if(Config.value("EffectEdition") == "professional1/")
+        ui->professional1Rdo->setChecked(true);
+    else if(Config.value("EffectEdition") == "professional2/")
+        ui->professional2Rdo->setChecked(true);
+    else
+        ui->classicalRdo->setChecked(true);
 
     // tab 2
     ui->nullificationSpinBox->setValue(Config.NullificationCountDown);
@@ -93,12 +103,10 @@ void ConfigDialog::on_browseBgButton_clicked()
 
 void ConfigDialog::on_resetBgButton_clicked()
 {
-    ui->bgPathLineEdit->clear();
-
-    QString filename = "backdrop/guixin.jpg";
-    Config.BackgroundBrush = filename;
-    Config.setValue("BackgroundBrush", filename);
-
+    QString default_bg = "backdrop/bg2.jpg";
+    Config.BackgroundBrush = default_bg;
+    Config.setValue("BackgroundBrush", default_bg);
+    ui->bgPathLineEdit->setText(default_bg);
     emit bg_changed();
 }
 
@@ -108,17 +116,28 @@ void ConfigDialog::saveConfig()
     Config.NullificationCountDown = count_down;
     Config.setValue("NullificationCountDown", count_down);
 
-    float volume = ui->volumeSlider->value() / 100.0;
-    Config.Volume = volume;
-    Config.setValue("Volume", volume);
+    float EffectVol = ui->volumeSlider_Effect->value() / 100.0;
+    Config.EffectVolume = EffectVol;
+    Config.setValue("EffectVolume", EffectVol);
+
+    float BgmVol = ui->volumeSlider_Bgm->value() / 100.0;
+    Config.BGMVolume = BgmVol;
+    Config.setValue("BGMVolume", BgmVol);
+
+    if(ui->classicalRdo->isChecked())
+        Config.setValue("EffectEdition", "classical/");
+    else if(ui->professional1Rdo->isChecked())
+        Config.setValue("EffectEdition", "professional1/");
+    else if(ui->professional2Rdo->isChecked())
+        Config.setValue("EffectEdition", "professional2/");
 
 #ifdef AUDIO_SUPPORT
 #ifdef  Q_OS_WIN32
     if(SoundEngine)
-        SoundEngine->setSoundVolume(Config.Volume);
+        SoundEngine->setSoundVolume(Config.BGMVolume);
 #else
     if(SoundOutput)
-        SoundOutput->setVolume(Config.Volume);
+        SoundOutput->setVolume(Config.BGMVolume);
 #endif
 #endif
 
@@ -138,6 +157,8 @@ void ConfigDialog::saveConfig()
     Config.setValue("FitInView", Config.FitInView);
 
     Config.setValue("CircularView", ui->circularViewCheckBox->isChecked());
+
+    Config.setValue("EnableLogBg", ui->enableLogBgCheckBox->isChecked());
 
     Config.NeverNullifyMyTrick = ui->neverNullifyMyTrickCheckBox->isChecked();
     Config.setValue("NeverNullifyMyTrick", Config.NeverNullifyMyTrick);
@@ -164,7 +185,7 @@ void ConfigDialog::on_browseBgMusicButton_clicked()
 
 void ConfigDialog::on_resetBgMusicButton_clicked()
 {
-    QString default_music = "audio/system/background.mp3";
+    QString default_music = "audio/music/bgm1.mp3";
     Config.setValue("BackgroundMusic", default_music);
     ui->bgMusicPathLineEdit->setText(default_music);
 }

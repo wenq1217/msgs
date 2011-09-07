@@ -211,8 +211,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
     case HpLost:{
             int lose = data.toInt();
 
-            if(room->getCurrent()->hasSkill("jueqing"))
-                return true;
+            //if(room->getCurrent()->hasSkill("jueqing"))
+            //    return true;
 
             LogMessage log;
             log.type = "#LoseHp";
@@ -330,9 +330,22 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(!chained)
                 break;
 
+            QList<ServerPlayer *> all_players = room->getAllPlayers();
+            bool isChainDamageStarted = false;
+            foreach(ServerPlayer *check_player, all_players){
+                if(check_player->tag.value("ChainDamaged", false).toBool())
+                    isChainDamageStarted = true;
+            }
+
+            if(isChainDamageStarted){
+                room->setPlayerProperty(player, "chained", false);
+                break;
+            }
+
             DamageStruct damage = data.value<DamageStruct>();
             if(damage.nature != DamageStruct::Normal){
                 room->setPlayerProperty(player, "chained", false);
+                player->tag["ChainDamaged"] = true;
 
                 // iron chain effect
                 QList<ServerPlayer *> chained_players = room->getOtherPlayers(player);
@@ -350,10 +363,11 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
                         chain_damage.chain = true;
 
                         room->damage(chain_damage);
-
-                        break;
                     }
                 }
+
+                // iron chain effect complete
+                player->tag.remove("ChainDamaged");
             }
 
             break;
@@ -730,10 +744,10 @@ bool HulaoPassMode::trigger(TriggerEvent event, ServerPlayer *player, QVariant &
             }else
                 player->drawCards(player->getSeat() + 1, false);
 
-            if(player->getGeneralName() == "zhangchunhua"){
-                if(qrand() % 3 == 0)
-                    room->killPlayer(player);
-            }
+            //if(player->getGeneralName() == "zhangchunhua"){
+            //    if(qrand() % 3 == 0)
+            //        room->killPlayer(player);
+            //}
 
             return false;
         }
@@ -843,9 +857,8 @@ void HulaoPassThread::run(){
     foreach(const General *general, generals){
         names << general->objectName();
     }
-    names << "xiaoqiao";
-    names.removeOne("wuxingzhuge");
-    names.removeOne("zhibasunquan");
+
+    names.removeOne("yuji");
 
     foreach(ServerPlayer *player, room->findChildren<ServerPlayer *>()){
         if(player == lord)

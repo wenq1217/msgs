@@ -10,17 +10,17 @@ ZhanShuangxiongCard::ZhanShuangxiongCard(){
 }
 
 bool ZhanShuangxiongCard::targetFilter(const QList<const Player *> &targets, const Player *to_select, const Player *Self) const{
-    return targets.isEmpty() && to_select->getGeneralName() == "shuangxiong" && !to_select->isKongcheng();
+    return targets.isEmpty() && to_select->getGeneralName() == "yanliangwenchou" && !to_select->isKongcheng();
 }
 
 void ZhanShuangxiongCard::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
-    ServerPlayer *shuangxiong = targets.first();
+    ServerPlayer *yanliangwenchou = targets.first();
 
     DamageStruct damage;
     damage.from = source;
-    damage.to = shuangxiong;
+    damage.to = yanliangwenchou;
 
-    bool success = source->pindian(shuangxiong, "zhanshuangxiong");
+    bool success = source->pindian(yanliangwenchou, "zhanshuangxiong");
     if(!success)
         qSwap(damage.from, damage.to);
 
@@ -167,6 +167,9 @@ public:
                     room->installEquip(player, "renwang_shield");
                     room->installEquip(player, "hualiu");
 
+                    ServerPlayer *zhenji = room->findPlayer("zhenji");
+                    room->setPlayerProperty(zhenji, "kingdom", "qun");;
+
                     ServerPlayer *caocao = room->findPlayer("caocao");
                     room->installEquip(caocao, "qinggang_sword");
                     room->installEquip(caocao, "zhuahuangfeidian");
@@ -213,7 +216,7 @@ public:
                     room->setTag("BurnWuchao", true);
 
                     QStringList tos;
-                    tos << "yuanshao" << "shuangxiong" << "zhenji" << "liubei";
+                    tos << "yuanshao" << "yanliangwenchou" << "zhenji" << "liubei";
 
                     foreach(QString name, tos){
                         ServerPlayer *to = room->findPlayer(name);
@@ -261,7 +264,7 @@ GuanduScenario::GuanduScenario()
     :Scenario("guandu")
 {
     lord = "yuanshao";
-    loyalists << "shuangxiong" << "zhenji";
+    loyalists << "yanliangwenchou" << "zhenji";
     rebels << "caocao" << "zhangliao" << "guojia";
     renegades << "liubei" << "guanyu";
 

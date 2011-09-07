@@ -854,7 +854,8 @@ void Client::surrender(){
 
 void Client::speakToServer(const QString &text){
     QByteArray data = text.toUtf8().toBase64();
-    request(QString("speak %1").arg(QString(data)));
+    if(!data.isEmpty())
+        request(QString("speak %1").arg(QString(data)));
 }
 
 void Client::addHistory(const QString &add_str){

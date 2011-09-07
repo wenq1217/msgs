@@ -60,7 +60,9 @@ public:
     bool EnableEffects;
     bool EnableLastWord;
     bool EnableBgMusic;
-    float Volume;
+    float BGMVolume;
+    float EffectVolume;
+    QString EffectEdition;
 
     QString BackgroundBrush;
 };
