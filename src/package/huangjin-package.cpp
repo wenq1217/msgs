@@ -530,7 +530,6 @@ public:
         if(effect.drank)
             card_num++;
 
-
         if(!effect.to->isNude() && player->askForSkillInvoke(objectName(), data)){
             room->playSkillEffect(objectName());
             while(card_num > 0 && !effect.to->isNude()){
@@ -541,7 +540,6 @@ public:
                     room->obtainCard(player, card_id);
                 card_num--;
             }
-
             return true;
         }
 
@@ -561,7 +559,6 @@ public:
 
     virtual bool onPhaseChange(ServerPlayer *peiyuanshao) const{
         Room *room = peiyuanshao->getRoom();
-
         if(peiyuanshao->getPhase() != Player::Draw)
             return false;
 
@@ -588,8 +585,8 @@ public:
             equip_ids.removeOne(card_id);
             peiyuanshao->obtainCard(Sanguosha->getCard(card_id));
         }
-        room->broadcastInvoke("clearAG");
         peiyuanshao->drawCards(1);
+        room->broadcastInvoke("clearAG");
         room->playSkillEffect(objectName());
 
         return true;
@@ -797,7 +794,6 @@ public:
         DamageStruct damage = data.value<DamageStruct>();
         ServerPlayer *source = damage.from;
         int nDamage = damage.damage;
-
         if(!source || !xianyuji->askForSkillInvoke(objectName()))
             return false;
 
@@ -810,56 +806,47 @@ public:
             judge.reason = objectName();
 
             room->judge(judge);
-
             switch(judge.card->getSuit()){
-            case Card::Heart:{
-                    RecoverStruct recover;
-                    recover.who = xianyuji;
-                    room->recover(xianyuji, recover);
-
-                    break;
-                }
-
-            case Card::Diamond:{
-                    xianyuji->drawCards(2);
-
-                    break;
-                }
-
-            case Card::Club:{
-                    if(source && source->isAlive() && source->getHandcardNum() > 0)
-                        room->askForDiscard(source, "xiuzhen", 2, false, true);
-
-                    break;
-                }
-
-            case Card::Spade:{
-                    if(source && source->isAlive()){
-                        DamageStruct damage;
-                        damage.card = NULL;
-                        damage.from = xianyuji;
-                        damage.to = source;
-                        damage.nature = DamageStruct::Thunder;
-
-                        if(damage.from->hasSkill("jueqing")){
-                            LogMessage log;
-                            log.type = "#Jueqing";
-                            log.from = damage.from;
-                            log.to << damage.to;
-                            log.arg = QString::number(1);
-                            room->sendLog(log);
-                            room->playSkillEffect("jueqing");
-                            room->loseHp(damage.to, 1);
-                        }else{
-                            room->damage(damage);
-                        }
+                case Card::Heart:{
+                        RecoverStruct recover;
+                        recover.who = xianyuji;
+                        room->recover(xianyuji, recover);
+                        break;
                     }
+                case Card::Diamond:{
+                        xianyuji->drawCards(2);
+                        break;
+                    }
+                case Card::Club:{
+                        if(source && source->isAlive() && source->getHandcardNum() > 0)
+                            room->askForDiscard(source, "xiuzhen", 2, false, true);
+                        break;
+                    }
+                case Card::Spade:{
+                        if(source && source->isAlive()){
+                            DamageStruct damage;
+                            damage.card = NULL;
+                            damage.from = xianyuji;
+                            damage.to = source;
+                            damage.nature = DamageStruct::Thunder;
 
+                            if(damage.from->hasSkill("jueqing")){
+                                LogMessage log;
+                                log.type = "#Jueqing";
+                                log.from = damage.from;
+                                log.to << damage.to;
+                                log.arg = QString::number(1);
+                                room->sendLog(log);
+                                room->playSkillEffect("jueqing");
+                                room->loseHp(damage.to, 1);
+                            }else{
+                                room->damage(damage);
+                            }
+                        }
+                        break;
+                    }
+                default:
                     break;
-                }
-
-            default:
-                break;
             }
 
             nDamage--;
@@ -905,9 +892,7 @@ public:
                 }
 
                 room->playSkillEffect(objectName(), 2);
-
                 bool success = pindianer.first()->pindian(pindianer.last(), "huoqi", NULL);
-
                 if(success){
                     if(!room->askForDiscard(pindianer.last(), objectName(), 2, true, true)){
                         DamageStruct damage;
@@ -959,9 +944,8 @@ public:
         }else if(xiannanhua->getPhase() == Player::Finish){
             if(xiannanhua->getMark("huoqi") >= 2){
                 xiannanhua->setMark("huoqi", 0);
-                if(xiannanhua->askForSkillInvoke(objectName())){
+                if(xiannanhua->askForSkillInvoke(objectName()))
                     perform(xiannanhua);
-                }
             }else
                 xiannanhua->setMark("huoqi", 0);
         }
@@ -996,13 +980,11 @@ TianbianCard::TianbianCard(){
 }
 
 void TianbianCard::use(Room *room, ServerPlayer *xiannanhua, const QList<ServerPlayer *> &targets) const{
-
 }
 
 class TianbianViewAsSkill:public OneCardViewAsSkill{
 public:
     TianbianViewAsSkill():OneCardViewAsSkill(""){
-
     }
 
     virtual bool isEnabledAtPlay(const Player *player) const{
@@ -1020,7 +1002,6 @@ public:
     virtual const Card *viewAs(CardItem *card_item) const{
         TianbianCard *card = new TianbianCard;
         card->addSubcard(card_item->getFilteredCard());
-
         return card;
     }
 };
@@ -1029,7 +1010,6 @@ class Tianbian: public TriggerSkill{
 public:
     Tianbian():TriggerSkill("tianbian"){
         events << AskForChangeCard;
-
         view_as_skill = new TianbianViewAsSkill;
     }
 
@@ -1060,13 +1040,14 @@ public:
                 room->moveCardTo(card, pindian->to, Player::Special, false);
             }
 
+            data = QVariant::fromValue(pindian);
+
             LogMessage log;
             log.type = "$ChangedPindian";
             log.from = xiannanhua;
             log.to << p;
 
             room->sendLog(log);
-            room->getThread()->delay(500);
         }
         return false;
     }
@@ -1110,7 +1091,6 @@ HuangjinPackage::HuangjinPackage()
     zhoucang->addSkill(new Chixie);
 
     mayuanyi = new General(this, "mayuanyi", "qun");
-    //mayuanyi->addSkill(new Dianzhang);
     mayuanyi->addSkill(new Leichui);
 
     xianyuji = new General(this, "xianyuji", "god", 3);

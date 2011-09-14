@@ -455,7 +455,6 @@ bool ServerPlayer::pindian(ServerPlayer *target, const QString &reason, const Ca
     }
 
     room->getThread()->trigger(Pindian, this, data);
-    pindian_star = data.value<PindianStar>();
 
     bool success = pindian_star->from_card->getNumber() > pindian_star->to_card->getNumber();
     log.type = success ? "#PindianSuccess" : "#PindianFailure";
