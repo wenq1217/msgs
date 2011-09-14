@@ -1,49 +1,32 @@
 -- translation for NostalgiaPackage
 
 return {
-	["nostalgia"] = "怀旧", 
-	["xiaoqiao"] = "小乔", 
-	["hongyan"] = "红颜", 
-	["tianxiang"] = "天香", 
-	[":hongyan"] = "锁定技，你的黑桃牌均视为红桃花色", 
-	[":tianxiang"] = "每当你受到伤害时，你可以弃一张红桃手牌来转移此伤害给任意一名角色，然后该角色摸X张牌；X为该角色当前已损失的体力值", 
-	["$tianxiang1"] = "替我挡着", 
-	["$tianxiang2"] = "接着哦", 
+	["nostalgia"] = "怀旧",
+	["nostalgia_cards"] = "怀旧",
+	
 	["moon_spear"] = "银月枪", 
-	[":moon_spear"] = "你的回合外，每当你使用或打出了一张黑色手牌（若为使用则在它结算之前），你可以立即对你攻击范围内的任意一名角色使用一张【杀】", 
-	["@moon-spear-slash"] = "银月枪的技能被触发，请打出一张【杀】以攻击", 
-	["@@tianxiang-card"] = "请打出一张红桃或黑桃来转移伤害", 
-	["#HongyanJudge"] = "%from 的锁定技【红颜】触发， 判定牌由黑牌变成了红桃", 
+	[":moon_spear"] = "装备牌，攻击范围：３\
+	武器特效：你的回合外，每当你使用或打出了一张黑色手牌（若为使用则在它结算之前），你可以立即对你攻击范围内的任意一名角色使用一张【杀】。", 
+	["@moon-spear-slash"] = "银月枪的技能被触发，请打出一张【杀】以攻击",
+
+	--制霸孙权
+	["zhibasunquan"] = "怀旧孙权",
+	["super_zhiheng"] = "制霸",
+	[":super_zhiheng"] = "出牌阶段，你可以弃置任意数量的牌，然后摸取等量的牌，每回合可用X+1次，X为你已损失的体力值。",
+
+	--五星诸葛亮
+	["wuxingzhuge"] = "怀旧诸葛亮",
+	["super_guanxing"] = "观星·五星",
+	[":super_guanxing"] = "回合开始阶段，你可以观看牌堆顶的５张牌，将其中任意数量的牌以任意顺序置于牌堆顶，其余则以任意顺序置于牌堆底。",
+
+	--武将台词
+	["$super_zhiheng1"] = "容我三思。",
+	["$super_zhiheng2"] = "且慢！",
 	
-	["yangxiu"] = "杨修", 
-	["jilei"] = "鸡肋", 
-	["danlao"] = "啖酪", 
-	["$jilei"] = "食之无味，弃之可惜", 
-	["$danlao"] = "一人一口，分而食之", 
-	["$hongyan"] = "(红颜)",
-	["~yangxiu"] = "恃才傲物，方有此命",
-	["~xiaoqiao"] = "公瑾，我先走一步",
+	["$super_guanxing1"] = "观今夜天象，知天下大事。",
+	["$super_guanxing2"] = "知天易，逆天难。",
 	
-	["yuji"] = "于吉",
-	["guhuo"] = "蛊惑",
-	[":guhuo"] = "当你需要使用或打出一张基本牌或非延时类锦囊牌时，你可以声明并将一张手牌扣于桌上。若无人质疑，则该牌按你所述之牌来用。若有人质疑，则亮出验明：若为真，质疑者各失去1点体力；若为假，质疑者各摸一张牌，除非被质疑的牌是【红桃】且为真（仍可用），否则无论真假，该牌都作废，弃置之",
-	["$guhuo1"] = "猜猜看哪?",
-	["$guhuo2"] = "你信吗?",
-	["~yuji"] = "竟然被猜到了",
-	
-	["#Jilei"] = "%from 鸡肋了 %to 的 %arg", 
-	["#JileiClear"] = "%from 的鸡肋效果消失",
-	["#Guhuo"] = "%from 发动了技能【蛊惑】，蛊惑的牌为 %arg, 指定的目标为 %to",
-	["#GuhuoNoTarget"] = "%from 发动了技能【蛊惑】，蛊惑的牌为 %arg",
-	["guhuo:question"] = "质疑",
-	["guhuo:noquestion"] = "不质疑",
-	["question"] = "质疑",
-	["noquestion"] = "不质疑",
-	["#GuhuoQuery"] = "%from 表示 %arg",
-	["$GuhuoResult"] = "%from 用来蛊惑的牌是 %card",
-	["guhuo-saveself"] = "自救蛊惑",
-	["guhuo-saveself:peach"] = "桃子",
-	["guhuo-saveself:analeptic"] = "酒",
-	
-	["cv:yangxiu"] = "迷宫",
+	--武将阵亡台词
+	["~zhibasunquan"] = "父亲，大哥，仲谋愧矣……",
+	["~wuxingzhuge"] = "将星陨落，天命难违。",
 }
