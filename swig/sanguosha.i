@@ -76,9 +76,7 @@ public:
     int getLostHp() const;
     bool isWounded() const;
 
-    int getMaxCards() const;    
-    int getXueyi() const;
-    void setXueyi(int xueyi, bool superimpose = true);
+    int getMaxCards() const;
 
     QString getKingdom() const;
     void setKingdom(const char *kingdom);
@@ -106,7 +104,6 @@ public:
     Phase getPhase() const;
     void setPhase(Phase phase);
 
-    void setAttackRange(int attack_range);
     int getAttackRange() const;
     bool inMyAttackRange(const Player *other) const;
 
@@ -130,7 +127,8 @@ public:
     void acquireSkill(const char *skill_name);
     void loseSkill(const char *skill_name);
     bool hasSkill(const char *skill_name) const;
-	virtual bool hasLordSkill(const char *skill_name) const = 0;
+	bool hasLordSkill(const char *skill_name) const;
+	bool hasInnateSkill(const char *skill_name) const;
 
     void setEquip(const EquipCard *card);
     void removeEquip(const EquipCard *equip);
@@ -645,11 +643,9 @@ public:
     bool trigger(TriggerEvent event, ServerPlayer *target);
 
     void addPlayerSkills(ServerPlayer *player, bool invoke_game_start = false);
-    void removePlayerSkills(ServerPlayer *player);
-
     void addTriggerSkill(const TriggerSkill *skill);
-    void removeTriggerSkill(const TriggerSkill *skill);
-    void removeTriggerSkill(const QString &skill_name);
+	bool inSkillSet(const TriggerSkill *skill) const;
+
     void delay(unsigned long msecs = 1000);
     void end();
 };
@@ -741,7 +737,7 @@ public:
     bool askForNullification(const TrickCard *trick, ServerPlayer *from, ServerPlayer *to, bool positive);
     bool isCanceled(const CardEffectStruct &effect);
     int askForCardChosen(ServerPlayer *player, ServerPlayer *who, const char *flags, const char *reason);
-    const Card *askForCard(ServerPlayer *player, const char *pattern, const char *prompt, bool throw_it = true);
+    const Card *askForCard(ServerPlayer *player, const char *pattern, const char *prompt, const QVariant &data);
     bool askForUseCard(ServerPlayer *player, const char *pattern, const char *prompt);
     int askForAG(ServerPlayer *player, const QList<int> &card_ids, bool refusable, const char *reason);
     const Card *askForCardShow(ServerPlayer *player, ServerPlayer *requestor, const char *reason);

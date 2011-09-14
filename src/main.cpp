@@ -1,7 +1,10 @@
 #include <QtGui/QApplication>
 
+#include <QCoreApplication>
 #include <QTranslator>
 #include <QDir>
+#include <cstring>
+#include <QDateTime>
 
 #include "mainwindow.h"
 #include "settings.h"
@@ -26,25 +29,35 @@ int main(int argc, char *argv[])
     if(dir_name == "release" || dir_name == "debug")
         QDir::setCurrent("..");
 
-    QApplication a(argc, argv);
+    if(argc > 1 && strcmp(argv[1], "-server") == 0)
+        new QCoreApplication(argc, argv);
+    else
+        new QApplication(argc, argv);
+
+    // initialize random seed for later use
+    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 
     QTranslator qt_translator, translator;
     qt_translator.load("qt_zh_CN.qm");
     translator.load("sanguosha.qm");
 
-    a.installTranslator(&qt_translator);
-    a.installTranslator(&translator);
+    qApp->installTranslator(&qt_translator);
+    qApp->installTranslator(&translator);
 
     Config.init();
     Sanguosha = new Engine;
     BanPair::loadBanPairs();
 
-    if(a.arguments().contains("-server")){
-        Server *server = new Server(&a);
-        server->listen();
-        server->daemonize();
+    if(qApp->arguments().contains("-server")){
+        Server *server = new Server(qApp);
+        printf("Server is starting on port %u\n", Config.ServerPort);
 
-        return a.exec();
+        if(server->listen())
+            printf("Starting successfully\n");
+        else
+            printf("Starting failed!\n");
+
+        return qApp->exec();
     }
 
 #ifdef AUDIO_SUPPORT
@@ -54,8 +67,8 @@ int main(int argc, char *argv[])
     if(SoundEngine)
         SoundEngine->setSoundVolume(Config.EffectVolume);
 #else
-    SoundEngine = new Phonon::MediaObject(&a);
-    SoundOutput = new Phonon::AudioOutput(Phonon::GameCategory, &a);
+    SoundEngine = new Phonon::MediaObject(qApp);
+    SoundOutput = new Phonon::AudioOutput(Phonon::GameCategory, qApp);
     Phonon::createPath(SoundEngine, SoundOutput);
 #endif
 
@@ -66,5 +79,5 @@ int main(int argc, char *argv[])
     Sanguosha->setParent(main_window);
     main_window->show();
 
-    return a.exec();
+    return qApp->exec();
 }
