@@ -241,7 +241,7 @@ public:
             }
         }
 
-        room->playSkillEffect("guixin2");
+        room->playSkillEffect("guixin");
 
         return false;
     }

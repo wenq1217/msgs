@@ -66,6 +66,7 @@ return {
 	--于吉
 	["yuji"] = "于吉",
 	["guhuo"] = "蛊惑",
+	["guhuo_pile"] = "蛊惑牌",
 	[":guhuo"] = "当你需要使用或打出一张基本牌或非延时类锦囊牌时，你可以声明并将一张手牌扣于桌上。若无人质疑，则该牌按你所述之牌来用。若有人质疑，则亮出验明：若为真，质疑者各失去1点体力；若为假，质疑者各摸一张牌，除非被质疑的牌花色是红桃且为真（仍可用），否则无论真假，该牌都作废，弃置之。",
 	["#Guhuo"] = "%from 发动了技能<font color='yellow'><b>【蛊惑】</b></font>，声明对 %to 使用 <font color='yellow'><b>%arg</b></font>",
 	["#GuhuoNoTarget"] = "%from 发动了<font color='yellow'><b>【蛊惑】</b></font>，声明使用的是 <font color='yellow'><b>%arg</b></font>",

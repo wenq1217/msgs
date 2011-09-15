@@ -887,7 +887,7 @@ void Room::swapPile(){
     if(times == 6)
         gameOver(".");
     if(mode == "04_1v3"){
-        int limit = Config.BanPackages.contains("maneuvering") ? 2 : 3;
+        int limit = Config.BanPackages.contains("maneuvering") ? 3 : 2;
         if(times == limit)
             gameOver(".");
     }
@@ -1646,8 +1646,10 @@ void Room::useCard(const CardUseStruct &card_use, bool add_history){
         useCard(new_use);
     }
 
+    /*
     if(card->isVirtualCard())
         delete card;
+        */
 }
 
 void Room::loseHp(ServerPlayer *victim, int lose){

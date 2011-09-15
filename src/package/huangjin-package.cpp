@@ -337,7 +337,7 @@ void WeichengCard::use(Room *room, ServerPlayer *zhangmancheng, const QList<Serv
             room->playSkillEffect(objectName());
         }
     }else{
-        zhangmancheng->setFlags("weichengfailed");
+        zhangmancheng->setFlags("weicheng_failed");
 
         LogMessage log;
         log.type = "#WeichengFailed";
@@ -351,53 +351,53 @@ void WeichengCard::use(Room *room, ServerPlayer *zhangmancheng, const QList<Serv
 
 class WeichengFailed: public TriggerSkill{
 public:
-    WeichengFailed():TriggerSkill("#weichengfailed"){
+    WeichengFailed():TriggerSkill("#weicheng"){
         events << CardUsed << CardEffected;
         frequency = Compulsory;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return target->hasFlag("weicheng_failed");
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *zhangmancheng, QVariant &data) const{
         Room *room = zhangmancheng->getRoom();
         const Card *card = NULL;
-        QList<ServerPlayer *> target;
         if(event == CardUsed){
             CardUseStruct use = data.value<CardUseStruct>();
             card = use.card;
-            target << use.to;
+            if(use.from == zhangmancheng)
+                return false;
         }else if(event == CardEffected){
             CardEffectStruct effect = data.value<CardEffectStruct>();
             card = effect.card;
-            target << effect.to;
+            if(effect.from == zhangmancheng)
+                return false;
         }
 
-        if(card == NULL
-           || !target.contains(zhangmancheng)
-           || !zhangmancheng->hasFlag("weichengfailed")
-           || !zhangmancheng->hasEquip())
+        if(card == NULL || !(card->inherits("Duel") || (card->inherits("Slash"))))
             return false;
 
-        if(card->inherits("Duel") || card->inherits("Slash")){
-            QList<int> equip_ids;
-            QList<const Card *> equips = zhangmancheng->getEquips();
-            foreach(const Card *c,equips)
-                equip_ids << c->getId();
+        QList<int> equip_ids;
+        QList<const Card *> equips = zhangmancheng->getEquips();
+        foreach(const Card *c,equips)
+            equip_ids << c->getId();
 
-            room->fillAG(equip_ids, zhangmancheng);
-            const int card_length = equip_ids.length();
+        room->fillAG(equip_ids, zhangmancheng);
+        const int card_length = equip_ids.length();
 
-            while(equip_ids.length () == card_length){
-                int card_id = room->askForAG(zhangmancheng, equip_ids, false, objectName());
-                equip_ids.removeOne(card_id);
-                room->throwCard(card_id);
-            }
-
-            LogMessage log;
-            log.type = "#WeichengDiscard";
-            log.from = zhangmancheng;
-
-            room->sendLog(log);
-            room->broadcastInvoke("clearAG");
+        while(equip_ids.length () == card_length){
+            int card_id = room->askForAG(zhangmancheng, equip_ids, false, objectName());
+            equip_ids.removeOne(card_id);
+            room->throwCard(card_id);
         }
+
+        LogMessage log;
+        log.type = "#WeichengDiscard";
+        log.from = zhangmancheng;
+
+        room->sendLog(log);
+        room->broadcastInvoke("clearAG");
 
         return false;
     }
@@ -435,7 +435,9 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return true;
+        return target->hasFlag("weicheng_skipdraw")
+                || target->hasFlag("weicheng_skipplay")
+                || target->hasFlag("weicheng_failed");
     }
 
     virtual bool onPhaseChange(ServerPlayer *target) const{
@@ -445,8 +447,8 @@ public:
         log.type = "#WeichengClear";
         log.from = target;
 
-        if(target->getPhase() == Player::Start && target->hasFlag("weichengfailed"))
-            room->setPlayerFlag(target, "-weichengfailed");
+        if(target->getPhase() == Player::Start && target->hasFlag("weicheng_failed"))
+            room->setPlayerFlag(target, "-weicheng_failed");
         else if(target->getPhase() == Player::Draw && target->hasFlag("weicheng_skipdraw"))
             return true;
         else if(target->getPhase() == Player::Play && target->hasFlag("weicheng_skipplay"))
@@ -1075,7 +1077,7 @@ HuangjinPackage::HuangjinPackage()
     zhangmancheng->addSkill(new Weicheng);
     zhangmancheng->addSkill(new WeichengFailed);
 
-    related_skills.insertMulti("weicheng", "#weichengfailed");
+    related_skills.insertMulti("weicheng", "#weicheng");
 
     chengyuanzhi = new General(this, "chengyuanzhi", "qun");
     chengyuanzhi->addSkill(new HuangjinBaonue);

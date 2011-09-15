@@ -1,4 +1,82 @@
 --qiaobian
+local function card_for_qiaobian(self, who, return_prompt)
+	local card, target
+	if self:isFriend(who) then
+		local judges = who:getCards("j")
+		if judges then
+			for _, judge in sgs.qlist(judges) do
+				card = judge
+				
+				if card and return_prompt:match("target") then
+					for _, enemy in ipairs(self.enemies) do
+						if not enemy:getCards("j") or not enemy:containsTrick(card:objectName()) then target = enemy break end
+					end
+				end
+				if target then break end
+			end
+		end
+		
+		local equips = who:getCards("e")
+		if equips then
+			for _, equip in sgs.qlist(equips) do
+				if equip:inherits("OffensiveHorse") then card = equip break
+				elseif equip:inherits("DefensiveHorse") then card = equip break
+				elseif equip:inherits("Weapon") then card = equip break
+				elseif equip:inherits("Armor") then card = equip break
+				end
+			end
+			
+			if card and return_prompt:match("target") then
+				for _, friend in ipairs(self.friends) do
+					if friend == who then 
+					elseif not friend:getCards("e") or not self:hasSameEquip(card, friend) then 
+						target = friend 
+						break 
+					end
+				end
+			end
+		end
+	else
+		local equips = who:getCards("e")
+		if not equips then return end
+		for _, equip in sgs.qlist(equips) do
+			if equip:inherits("Armor") then card = equip break
+			elseif equip:inherits("DefensiveHorse") then card = equip break
+			elseif equip:inherits("Weapon") then card = equip break
+			elseif equip:inherits("OffensiveHorse") then card = equip break
+			end
+		end
+		
+		if card and return_prompt:match("target") then
+			for _, friend in ipairs(self.friends) do
+				if not friend:getCards("e") or not self:hasSameEquip(card, friend) then 
+					target = friend 
+					break 
+				end
+			end
+		end
+	end
+	
+	if return_prompt == "card" then return card
+	elseif return_prompt == "target" then return target
+	else
+		return (card and target)
+	end
+end
+
+sgs.ai_skill_cardchosen.qiaobian = function(self, who, flags)
+	if flags == "ej" then
+		return card_for_qiaobian(self, who, "card")
+	end
+end
+
+sgs.ai_skill_playerchosen.qiaobian = function(self, targets)
+	local who = self.room:getTag("QiaobianTarget"):toPlayer()
+	if who then
+		return card_for_qiaobian(self, who, "target")
+	end
+end
+
 sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
     self:updatePlayers()
 	local cards = self.player:getHandcards()
@@ -7,7 +85,7 @@ sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
 	local card = cards[1]
 	
 	if prompt == "@qiaobian-judge" then
-		if (self.player:containsTrick("supplyshortage") and self.player:getHp() > self.player:getHandcardNum()) or
+		if (self.player:containsTrick("supply_shortage") and self.player:getHp() > self.player:getHandcardNum()) or
 			(self.player:containsTrick("indulgence") and self.player:getHandcardNum() > self.player:getHp()-1) or
 			(self.player:containsTrick("lightning") and not self:hasWizard(self.friends) and self:hasWizard(self.enemies)) or
 			(self.player:containsTrick("lightning") and #self.friends > #self.enemies) then
@@ -38,15 +116,13 @@ sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
 		local has_armor = true
 		local judge
 		for _, friend in ipairs(self.friends_noself) do
-			if (friend:containsTrick("lightning") and self:hasWizard(self.friends) and self:hasWizard(self.enemied)) or
-				(friend:containsTrick("indulgence") and friend:getHandcardNum()-1 > friend:getHp()) or 
-				friend:containsTrick("supplyshortage") then
+			if friend:getCards("j") and card_for_qiaobian(self, friend, "card+target") then
 				return "@QiaobianCard=" .. card:getEffectiveId() .."->".. friend:objectName()
 			end
 		end	
 		
 		for _, friend in ipairs(self.friends_noself) do
-			if self:hasSkills(sgs.lose_equip_skill, friend) then
+			if friend:getCards("e") and self:hasSkills(sgs.lose_equip_skill, friend) and card_for_qiaobian(self, friend, "card+target") then
 				return "@QiaobianCard=" .. card:getEffectiveId() .."->".. friend:objectName()
 			end
 			if not friend:getArmor() then has_armor = false end
@@ -62,7 +138,7 @@ sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
 		
 		local targets = {}
 		for _, enemy in ipairs(self.enemies) do
-			if enemy:getArmor() and not has_armor then
+			if enemy:getArmor() and not has_armor and card_for_qiaobian(self, enemy) then
 				table.insert(targets, enemy)
 			end
 		end
@@ -82,29 +158,10 @@ sgs.ai_skill_use["@qiaobian"] = function(self, prompt)
 	return "."
 end
 
-sgs.ai_skill_playerchosen.qiaobian = function(self, targets)
-	local has_delay = false;
-	for _, friend in ipairs(self.friends_noself) do
-		if friend:getCards("j") and friend:getCards("j"):length() > 0 then
-			has_delay = true
-			break
-		end
-	end
-	
-	for _, target in sgs.qlist(targets) do
-		if not has_delay and self:isFriend(target) then
-			return friend
-		end
-		if has_delay and self:isEnemy(target) then 
-			return enemy
-		end
-	end
-end
-
 -- beige
 sgs.ai_skill_invoke.beige = function(self, data)
 	local damage = data:toDamage()
-	return self:isFriend(damage.to)
+	return self:isFriend(damage.to) and not self:isFriend(damage.from)
 end
 
 -- guzheng
@@ -126,9 +183,7 @@ zhijian_skill.getTurnUseCard = function(self)
 	end
 	if #equips == 0 then return end
 	
-	local zhijian_str = "@ZhijianCard=" .. equips[1]:getEffectiveId()
-	assert(zhijian_str)
-	return sgs.Card_Parse(zhijian_str)
+	return sgs.Card_Parse("@ZhijianCard=.")
 end
 
 sgs.ai_skill_use_func["ZhijianCard"] = function(card, use, self)
@@ -139,7 +194,7 @@ sgs.ai_skill_use_func["ZhijianCard"] = function(card, use, self)
 			else
 				table.insert(equips, card)
 			end
-		else
+		elseif card:getTypeId() == sgs.Card_Equip then
 			table.insert(equips, card)
 		end
 	end
@@ -162,7 +217,7 @@ sgs.ai_skill_use_func["ZhijianCard"] = function(card, use, self)
 	if use.to then
 		use.to:append(target)
 	end
-	local zhijian = sgs.Card_Parse("@ZhijianCard="..select_equip:getEffectiveId())
+	local zhijian = sgs.Card_Parse("@ZhijianCard=" .. select_equip:getId())
 	use.card = zhijian
 end
 
@@ -192,7 +247,23 @@ local jixi_skill={}
 jixi_skill.name="jixi"
 table.insert(sgs.ai_skills, jixi_skill)
 jixi_skill.getTurnUseCard = function(self)
-	if self.player:getPile("field"):isEmpty() or self.player:getHandcardNum()>self.player:getHp() then return end
+	local players = self.room:getOtherPlayers(self.player)
+	local targets = {}
+	for _, p in sgs.qlist(players) do
+		if self.player:distanceTo(p) <= 1 then
+			if self:isEnemy(p) and p:getCards("he") and self:hasTrickEffective(sgs.Sanguosha:cloneCard("snatch", sgs.Card_NoSuit, 0), p) then 
+				table.insert(targets, p) 
+			elseif self:isFriend(p) and p:getCards("j") then
+				table.insert(targets, p) 
+			end
+		end
+	end
+	
+	if self.player:getPile("field"):isEmpty() 
+		or #targets == 0
+		or self.player:getHandcardNum()>=self.player:getHp() then 
+		return 
+	end
 	return sgs.Card_Parse("@JixiCard=.")
 end
 
@@ -201,10 +272,17 @@ sgs.ai_skill_use_func["JixiCard"] = function(card, use, self)
 end
 
 sgs.ai_skill_playerchosen.jixi = function(self, targets)
-	targets = sgs.QList2Table(targets)
-	self:sort(targets, "defense")
+	local choices = {}
+	for _, target in sgs.qlist(targets) do
+		if self:isEnemy(target) and target:getCards("he") then table.insert(choices, target)
+		elseif self:isFriend(target) and target:getCards("j") then table.insert(choices, target)
+		end
+	end
 	
-	return targets[1]
+	if #choices == 0 then return targets:at(0) end
+	
+	self:sort(choices, "hp")
+	return choices[1]
 end
 
 sgs.ai_skill_askforag.jixi = function(self, card_ids)
@@ -248,22 +326,23 @@ sgs.ai_skill_use_func["TiaoxinCard"] = function(card,use,self)
 			if card:inherits("Slash") then
 				if card:isBlack() then sgs.slash_property["is_black"] = true end
 				if card:isRed() then sgs.slash_property["is_red"] = true end
-				if card:inherits("FireSlash") then sgs.slash_property["is_fire"] = true end
-				if card:inherits("ThunderSlash") then sgs.slash_property["is_thunder"] = true end
-				if card:inherits("NatureSlash") then sgs.slash_property["is_normal"] = true end
+				if card:inherits("FireSlash") then sgs.slash_property["is_fire"] = true 
+				elseif card:inherits("ThunderSlash") then sgs.slash_property["is_thunder"] = true 
+				else sgs.slash_property["is_normal"] = true 
+				end
 			end
 		end
 		
-		local slash_useless = true
+		local slash_useless = false
 		local has_armor = self.player:getArmor()
 		if has_armor then
 			if self.player:getArmor():objectName() == "vine" then
-				if (sgs.slash_property["is_fire"] or sgs.slash_property["is_thunder"]) then
-					slash_useless = false
+				if not (sgs.slash_property["is_fire"] or sgs.slash_property["is_thunder"]) then
+					slash_useless = true
 				end
 			elseif self.player:getArmor():objectName() == "renwang_shield" then
-				if sgs.slash_property["is_red"] then 
-					slash_useless = false
+				if not sgs.slash_property["is_red"] then 
+					slash_useless = true
 				end
 			end
 		end
@@ -281,6 +360,13 @@ sgs.ai_skill_use_func["TiaoxinCard"] = function(card,use,self)
 		use.to:append(targets[1])
 	end
 	use.card = sgs.Card_Parse("@TiaoxinCard=.")
+end
+
+--zhiji
+sgs.ai_skill_choice["zhiji"] = function(self, choice)
+	if self.player:getHp() < self.player:getMaxHP()-1 then return "recover" end
+	
+	return "draw"
 end
 	
 --zhiba
@@ -360,4 +446,10 @@ sgs.ai_skill_choice["zhiba_pindian"] = function(self, choices)
 	if self:isEnemy(who) then return "reject"
 	else return "accept"
 	end
+end
+
+sgs.ai_skill_choice["huashen"] = function(self, choices)
+	local parseprompt = choices:split("+")
+	local index = math.random(1, #parseprompt)
+	return choices[index]
 end
