@@ -44,7 +44,7 @@
      <property name="title">
       <string>Audio</string>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget1">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -72,7 +72,7 @@
         </widget>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="AudioChooseHLayout">
          <item>
           <spacer name="horizontalSpacer_2">
            <property name="orientation">
@@ -104,7 +104,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget2">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -143,7 +143,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget3">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -249,7 +249,7 @@
      <property name="title">
       <string>Background</string>
      </property>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget4">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -258,9 +258,9 @@
         <height>73</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
+      <layout class="QVBoxLayout" name="bgVLayout">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
+        <layout class="QVBoxLayout" name="ibgVLayout">
          <item>
           <widget class="QLabel" name="backgrounSetupLabel">
            <property name="text">
@@ -281,7 +281,7 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
+        <layout class="QHBoxLayout" name="ibgHLayout">
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -442,50 +442,50 @@
        <cstring>textEditFontLineEdit</cstring>
       </property>
      </widget>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_2">
-     <property name="geometry">
-      <rect>
-       <x>270</x>
-       <y>350</y>
-       <width>161</width>
-       <height>56</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QPushButton" name="changeAppFontButton">
-        <property name="text">
-         <string>Set application font</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QPushButton" name="setTextEditFontButton">
-          <property name="text">
-           <string>Font ...</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="setTextEditColorButton">
-          <property name="text">
-           <string>Color ...</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
+     <widget class="QWidget" name="verticalLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>20</y>
+        <width>160</width>
+        <height>56</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="FontVLayout">
+       <item>
+        <widget class="QPushButton" name="changeAppFontButton">
+         <property name="text">
+          <string>Set application font</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="FontHLayout">
+         <item>
+          <widget class="QPushButton" name="setTextEditFontButton">
+           <property name="text">
+            <string>Font ...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="setTextEditColorButton">
+           <property name="text">
+            <string>Color ...</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="gameTab">
     <attribute name="title">
      <string>Game</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget5">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -547,7 +547,7 @@
     <attribute name="title">
      <string>Contest mode</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="layoutWidget6">
      <property name="geometry">
       <rect>
        <x>20</x>
