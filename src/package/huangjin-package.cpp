@@ -36,14 +36,10 @@ public:
 
         ServerPlayer *rengonger = room->askForPlayerChosen(zhangliang, players, objectName());
         QList<int> handcards = rengonger->handCards();
-        room->fillAG(handcards, zhangliang);
 
-        const int card_length = handcards.length();
-        while(handcards.length () == card_length){
-            int card_id = room->askForAG(zhangliang, handcards, false, objectName());
-            handcards.removeOne(card_id);
-            room->moveCardTo(Sanguosha->getCard(card_id), zhangliang, Player::Hand, false);
-        }
+        room->fillAG(handcards, zhangliang);
+        int card_id = room->askForAG(zhangliang, handcards, false, objectName());
+        room->moveCardTo(Sanguosha->getCard(card_id), zhangliang, Player::Hand, false);
         room->broadcastInvoke("clearAG");
 
         return true;
@@ -384,13 +380,8 @@ public:
             equip_ids << c->getId();
 
         room->fillAG(equip_ids, zhangmancheng);
-        const int card_length = equip_ids.length();
-
-        while(equip_ids.length () == card_length){
-            int card_id = room->askForAG(zhangmancheng, equip_ids, false, objectName());
-            equip_ids.removeOne(card_id);
-            room->throwCard(card_id);
-        }
+        int card_id = room->askForAG(zhangmancheng, equip_ids, false, objectName());
+        room->throwCard(card_id);
 
         LogMessage log;
         log.type = "#WeichengDiscard";
@@ -580,13 +571,8 @@ public:
             equip_ids << c->getId();
 
         room->fillAG(equip_ids, peiyuanshao);
-        const int card_length = equip_ids.length();
-
-        while(equip_ids.length () == card_length){
-            int card_id = room->askForAG(peiyuanshao, equip_ids, false, objectName());
-            equip_ids.removeOne(card_id);
-            peiyuanshao->obtainCard(Sanguosha->getCard(card_id));
-        }
+        int card_id = room->askForAG(peiyuanshao, equip_ids, false, objectName());;
+        peiyuanshao->obtainCard(Sanguosha->getCard(card_id));
         peiyuanshao->drawCards(1);
         room->broadcastInvoke("clearAG");
         room->playSkillEffect(objectName());

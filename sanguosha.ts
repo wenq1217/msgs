@@ -1411,27 +1411,27 @@
 <context>
     <name>GuhuoDialog</name>
     <message>
-        <location filename="src/package/wind.cpp" line="725"/>
+        <location filename="src/package/wind.cpp" line="726"/>
         <source>Guhuo</source>
         <translation>蛊惑</translation>
     </message>
     <message>
-        <location filename="src/package/wind.cpp" line="759"/>
+        <location filename="src/package/wind.cpp" line="760"/>
         <source>Basic cards</source>
         <translation>基本牌</translation>
     </message>
     <message>
-        <location filename="src/package/wind.cpp" line="780"/>
+        <location filename="src/package/wind.cpp" line="781"/>
         <source>Non delayed tricks</source>
         <translation>非延时锦囊</translation>
     </message>
     <message>
-        <location filename="src/package/wind.cpp" line="783"/>
+        <location filename="src/package/wind.cpp" line="784"/>
         <source>Single target</source>
         <translation>单目标锦囊</translation>
     </message>
     <message>
-        <location filename="src/package/wind.cpp" line="786"/>
+        <location filename="src/package/wind.cpp" line="787"/>
         <source>Multiple targets</source>
         <translation>多目标锦囊</translation>
     </message>
@@ -1439,7 +1439,7 @@
 <context>
     <name>HuashenDialog</name>
     <message>
-        <location filename="src/package/mountainpackage.cpp" line="1029"/>
+        <location filename="src/package/mountainpackage.cpp" line="1033"/>
         <source>Incarnation</source>
         <translation>化身</translation>
     </message>
@@ -2334,7 +2334,7 @@
         <translation>&lt;font color=#EEB422&gt;玩家 &lt;b&gt;%1&lt;/b&gt; 加入了游戏&lt;/font&gt;</translation>
     </message>
     <message>
-        <location filename="src/server/room.cpp" line="2315"/>
+        <location filename="src/server/room.cpp" line="2317"/>
         <source>Card can not parse:
  %1</source>
         <oldsource>Card can not parse:
@@ -3127,12 +3127,12 @@
 <context>
     <name>ServerPlayer</name>
     <message>
-        <location filename="src/server/serverplayer.cpp" line="249"/>
+        <location filename="src/server/serverplayer.cpp" line="251"/>
         <source>Anonymous</source>
         <translation>匿名</translation>
     </message>
     <message>
-        <location filename="src/server/serverplayer.cpp" line="646"/>
+        <location filename="src/server/serverplayer.cpp" line="647"/>
         <source>Contestant</source>
         <translation>选手</translation>
     </message>

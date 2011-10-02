@@ -23,6 +23,8 @@ Room *ServerPlayer::getRoom() const{
 void ServerPlayer::playCardEffect(const Card *card){
     if(card->isVirtualCard() && !card->isMute()){
         QString skill_name = card->getSkillName();
+        if(skill_name == "xuanfeng")
+            skill_name.remove("xuanfeng");
         const Skill *skill = Sanguosha->getSkill(skill_name);
         int index = -1;
         if(skill)
