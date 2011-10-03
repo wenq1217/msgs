@@ -11,6 +11,12 @@ public:
     SPPackage();
 };
 
+class SPCardPackage: public Package{
+    Q_OBJECT
+
+public:
+    SPCardPackage();
+};
 
 
 #endif // SPPACKAGE_H

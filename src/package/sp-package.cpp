@@ -6,6 +6,70 @@
 #include "engine.h"
 #include "standard.h"
 
+class SPMoonSpearSkill: public WeaponSkill{
+public:
+    SPMoonSpearSkill():WeaponSkill("sp_moonspear"){
+        events << CardFinished << CardResponsed;
+    }
+
+    virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
+        if(player->getPhase() != Player::NotActive)
+            return false;
+
+        CardStar card = NULL;
+        if(event == CardFinished){
+            CardUseStruct card_use = data.value<CardUseStruct>();
+            card = card_use.card;
+        }else if(event == CardResponsed)
+            card = data.value<CardStar>();
+
+        if(!card || !card->isBlack())
+            return false;
+
+        Room *room = player->getRoom();
+        if(room->askForSkillInvoke(player, objectName(), data)){
+            QList<ServerPlayer *> targets;
+            foreach(ServerPlayer *p, room->getOtherPlayers(player)){
+                if(player->inMyAttackRange(p))
+                    targets << p;
+            }
+
+            if(targets.isEmpty())
+                return false;
+
+            ServerPlayer *target = room->askForPlayerChosen(player, targets, objectName());
+            if(!room->askForCard(target, "jink", "@moon-spear-jink")){
+                DamageStruct damage;
+                damage.from = player;
+                damage.to = target;
+                if(damage.from->hasSkill("jueqing")){
+                    LogMessage log;
+                    log.type = "#Jueqing";
+                    log.from = damage.from;
+                    log.to << damage.to;
+                    log.arg = QString::number(1);
+                    room->sendLog(log);
+                    room->playSkillEffect("jueqing");
+                    room->loseHp(damage.to, 1);
+                }else{
+                    room->damage(damage);
+                }
+            }
+        }
+
+        return false;
+    }
+};
+
+class SPMoonSpear: public Weapon{
+public:
+    SPMoonSpear(Suit suit = Card::Diamond, int number = 12)
+        :Weapon(suit, number, 3){
+        setObjectName("sp_moonspear");
+        skill = new SPMoonSpearSkill;
+    }
+};
+
 class JileiClear: public PhaseChangeSkill{
 public:
     JileiClear():PhaseChangeSkill("#jilei-clear"){
@@ -325,6 +389,14 @@ public:
     }
 };
 
+SPCardPackage::SPCardPackage()
+    :Package("sp_cards")
+{
+    (new SPMoonSpear)->setParent(this);
+
+    type = CardPack;
+}
+
 SPPackage::SPPackage()
     :Package("sp")
 {
@@ -342,6 +414,10 @@ SPPackage::SPPackage()
     General *sp_pangde = new General(this, "sp_pangde", "wei", 4, true, true);
     sp_pangde->addSkill("mengjin");
     sp_pangde->addSkill("mashu");
+
+    General *sp_caiwenji = new General(this, "sp_caiwenji", "wei", 3, false, true);
+    sp_caiwenji->addSkill("beige");
+    sp_caiwenji->addSkill("duanchang");
 
     General *sp_sunshangxiang = new General(this, "sp_sunshangxiang", "shu", 3, false, true);
     sp_sunshangxiang->addSkill("jieyin");
@@ -373,4 +449,5 @@ SPPackage::SPPackage()
     shenlvbu2->addSkill(new Skill("shenji"));
 }
 
+ADD_PACKAGE(SPCard)
 ADD_PACKAGE(SP);
