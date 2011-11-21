@@ -50,6 +50,11 @@ return {
 	["lukang_weiyan:choice2"] = "出牌→弃牌→摸牌",
 	["#WeiyanChoice1"] = "%from 选择的行动顺序是 <b>弃牌→摸牌→出牌</b>",
 	["#WeiyanChoice2"] = "%from 选择的行动顺序是 <b>出牌→弃牌→摸牌</b>",
+	["kegou"] = "克构",
+	[":kegou"] = "<b>觉醒技</b>，回合开始阶段，若你是除主公外唯一的吴势力角色，你须减少1点体力上限并获得技能“连营”。",
+	["#KegouWake"] = "%from 是场上唯一的吴势力角色，满足克构的觉醒条件",
+	["lukang_weiyan:draw2play"] = "您是否想 <b>围堰</b> 将 <b>摸牌阶段</b> 当成 <b>出牌阶段</b> 来执行？",
+	["lukang_weiyan:play2draw"] = "您是否想 <b>围堰</b> 将 <b>出牌阶段</b> 当成 <b>摸牌阶段</b> 来执行？",
 	["~lukang"] = "陆抗阵亡",
 	
 	-- 夏侯涓

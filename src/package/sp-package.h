@@ -18,5 +18,4 @@ public:
     SPCardPackage();
 };
 
-
 #endif // SPPACKAGE_H

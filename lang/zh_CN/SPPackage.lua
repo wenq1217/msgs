@@ -55,17 +55,18 @@ return {
 	["#YongsiGood"] = "%from 的锁定技<font color='yellow'><b>【庸肆】</b></font>被触发，额外摸了 %arg 张牌",
 	["#YongsiBad"] = "%from 的锁定技<font color='yellow'><b>【庸肆】</b></font>被触发，必须弃掉至少 %arg 张牌",
 	["#YongsiWorst"] = "%from 的锁定技<font color='yellow'><b>【庸肆】</b></font>被触发，弃掉了所有的装备和手牌（共 %arg 张）",
-	["#HuangtianFailed"] = "由于主公已经失去<font color='yellow'><b>【黄天】</b></font>，%from 对 %to 送牌失败。",
-	["#ZhibaFailed"] = "由于主公已经失去<font color='yellow'><b>【制霸】</b></font>，%from 对 %to 的拼点被取消。",
 	
 	--SP貂蝉
 	["sp_diaochan"] = "SP貂蝉",
 	["xuwei"] = "续尾",
 	[":xuwei"] = "狗尾续貂，变身为原版貂蝉，每回合限一次。",
 	
+	--SP马超
+	["sp_machao"] = "SP马超",
+	
 	--虎牢关 神·吕布
-	["shenlvbu1"] = "神·吕布(最强神话)",
-	["shenlvbu2"] = "神·吕布(暴怒的战神)",
+	["shenlvbu1"] = "最强神话",
+	["shenlvbu2"] = "暴怒的战神",
 	["xiuluo"] = "修罗",
 	[":xiuluo"] = "回合开始阶段，你可以弃一张手牌来弃置你判定区里的一张延时类锦囊（必须花色相同）。",	
 	["shenwei"] = "神威",
@@ -106,6 +107,7 @@ return {
 	["$weidi1"] = "我才是皇帝！",
 	["$weidi2"] = "你们都得听我的号令！",
 	
+	--SP马超（同原马超）
 	--SP貂蝉（同原貂蝉）
 	
 	--虎牢关 神·吕布
@@ -121,6 +123,7 @@ return {
 	["~sp_sunshangxiang"] = "不，还不可以死……",
 	["~gongsunzan"] = "我军将败，我已无颜苟活于世。",
 	["~yuanshu"] = "可恶，就差一步了……",
+	["~sp_machao"] = "（马蹄声）",
 	["~sp_diaochan"] = "父亲大人，对不起……",
 	["~shenlvbu1"] = "看我杀你们个片甲不留！",
 	["~shenlvbu2"] = "呃，不可能！",

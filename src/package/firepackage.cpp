@@ -33,8 +33,6 @@ void QuhuCard::use(Room *room, ServerPlayer *xunyu, const QList<ServerPlayer *> 
 
     bool success = xunyu->pindian(tiger, "quhu", this);
     if(success){
-        room->playSkillEffect("quhu", 2);
-
         QList<ServerPlayer *> players = room->getOtherPlayers(tiger), wolves;
         foreach(ServerPlayer *player, players){
             if(tiger->inMyAttackRange(player))
@@ -47,7 +45,6 @@ void QuhuCard::use(Room *room, ServerPlayer *xunyu, const QList<ServerPlayer *> 
             log.from = xunyu;
             log.to << tiger;
             room->sendLog(log);
-
             return;
         }
 
@@ -58,6 +55,7 @@ void QuhuCard::use(Room *room, ServerPlayer *xunyu, const QList<ServerPlayer *> 
         log.from = tiger;
         log.to << wolf;
         room->sendLog(log);
+        room->playSkillEffect("quhu", 2);
 
         DamageStruct damage;
         damage.from = tiger;
@@ -432,6 +430,8 @@ public:
                 if(dying_data.damage == NULL || dying_data.damage->nature == DamageStruct::Normal)
                     room->setPlayerProperty(pangtong, "chained", false);
             }
+            if(!pangtong->faceUp())
+                pangtong->turnOver();
         }
 
         return false;
@@ -464,7 +464,7 @@ public:
     }
 
     virtual bool triggerable(const ServerPlayer *target) const{
-        return TriggerSkill::triggerable(target) && !target->getArmor() && target->getMark("qinggang") == 0;
+        return TriggerSkill::triggerable(target) && !target->getArmor() && target->getMark("qinggang") == 0 && target->getMark("wuqian") == 0;
     }
 
     virtual bool trigger(TriggerEvent, ServerPlayer *wolong, QVariant &data) const{
@@ -629,4 +629,4 @@ FirePackage::FirePackage()
     addMetaObject<TianyiCard>();
 }
 
-ADD_PACKAGE(Fire);
+ADD_PACKAGE(Fire)

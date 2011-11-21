@@ -10,11 +10,9 @@ sgs.ai_skill_use["@@leiji"]=function(self,prompt)
     self:updatePlayers()
 	self:sort(self.enemies,"hp")
 	for _,enemy in ipairs(self.enemies) do
-		if self:objectiveLevel(enemy)>3 and not (enemy:getArmor() and enemy:getArmor():objectName() == "silver_lion") and not enemy:hasSkill("hongyan") then
+		if not self:isEquip("SilverLion", enemy) and not enemy:hasSkill("hongyan") then
 			return "@LeijiCard=.->"..enemy:objectName() 
 		end
-		
-		return "."
 	end
 	return "."
 end
@@ -111,7 +109,7 @@ sgs.ai_skill_use["@@shensu2"]=function(self,prompt)
         if enemy:hasSkill("kongcheng") and enemy:isKongcheng() then
         elseif self:slashProhibit(nil, enemy) then
         elseif eff then 
-			if enemy:getHp() == 1 and self:getJinkNumber(enemy) == 0 then best_target = enemy break end
+			if enemy:getHp() == 1 and self:getCardsNum("Jink", enemy) == 0 then best_target = enemy break end
 			if def < defense then
 				best_target = enemy
 				defense = def
@@ -131,6 +129,7 @@ sgs.ai_skill_invoke["@guidao"]=function(self,prompt)
     local judge = self.player:getTag("Judge"):toJudge()
 	
 	if self:needRetrial(judge) then
+		self:log("guidao!!!!!!!!")
 		local all_cards = self.player:getCards("he")
 		local cards = {}
 		for _, card in sgs.qlist(all_cards) do
@@ -138,7 +137,6 @@ sgs.ai_skill_invoke["@guidao"]=function(self,prompt)
 				table.insert(cards, card)
 			end
 		end
-		
 		local card_id = self:getRetrialCardId(cards, judge)
 		if card_id ~= -1 then
 			return "@GuidaoCard=" .. card_id
@@ -156,6 +154,7 @@ huangtianv_skill.getTurnUseCard=function(self)
     if self.player:hasUsed("HuangtianCard") then return nil end
     if self.player:isLord() then return nil end
     if self.player:getKingdom() ~= "qun" then return nil end
+	if not self.room:getLord():hasSkill("huangtian") then return nil end
 
     local cards = self.player:getCards("h")	
     cards=sgs.QList2Table(cards)

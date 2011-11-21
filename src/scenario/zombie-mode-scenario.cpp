@@ -33,6 +33,7 @@ public:
 
         QString gender = player->getGeneral()->isMale() ? "male" : "female";
         room->broadcastInvoke("playAudio", QString("zombify-%1").arg(gender));
+        room->broadcastInvoke("updateStateItem", room->getRoleStateString());
 
         player->tag.remove("zombie");
     }
@@ -77,12 +78,6 @@ public:
             if(damage && damage->from){
                 ServerPlayer *killer = damage->from;
 
-                if(killer == player)
-                {
-                    if(!hasHuman)room->gameOver("rebel");
-                    break;
-                }
-
                 if(player->getGeneral2Name()=="zombie"){
                     RecoverStruct recover;
                     recover.who = killer;
@@ -90,22 +85,18 @@ public:
                     room->recover(killer, recover);
                     if(player->getRole()=="renegade")killer->drawCards(3);
 
-                    if(!hasHuman)room->gameOver("rebel");
-                    break;
                 }
 
-                if(killer->getGeneral2Name()=="zombie"){
+                else if(killer->getGeneral2Name()=="zombie"){
                     zombify(player, killer);
                     room->setPlayerProperty(player, "role", "renegade");
                     player->getRoom()->revivePlayer(player);
                     room->setPlayerProperty(killer,"role","rebel");
 
-                    if(!hasHuman)room->gameOver("rebel");
-                    break;
                 }
             }
 
-
+            if(!hasHuman)room->gameOver("rebel");
 
             break;
         }
@@ -275,8 +266,7 @@ public:
             log.arg2 = QString::number(damage.damage + 1);
             zombie->getRoom()->sendLog(log);
 
-            if(zombie->getHp()>2)
-                zombie->getRoom()->loseHp(zombie);
+            if(zombie->getHp()>1)zombie->getRoom()->loseHp(zombie);
 
             damage.damage ++;
             data = QVariant::fromValue(damage);

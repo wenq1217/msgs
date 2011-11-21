@@ -60,6 +60,8 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
         }
 
     case Player::Play: {
+            player->clearHistory();
+
             while(player->isAlive()){
                 CardUseStruct card_use;
                 room->activate(player, card_use);
@@ -112,7 +114,6 @@ void GameRule::onPhaseChange(ServerPlayer *player) const{
             }
 
             player->clearFlags();
-            player->clearHistory();
 
             return;
         }
@@ -421,17 +422,8 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             if(room->getMode() == "02_1v1"){
                 QStringList list = player->tag["1v1Arrange"].toStringList();
 
-                if(!list.isEmpty()){
-                    player->tag["1v1ChangeGeneral"] = list.takeFirst();
-                    player->tag["1v1Arrange"] = list;
-
-                    DamageStar damage = data.value<DamageStar>();
-
-                    if(damage == NULL)
-                        changeGeneral1v1(player);
-
+                if(!list.isEmpty())
                     return false;
-                }
             }
 
             QString winner = getWinner(player);
@@ -457,6 +449,21 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
 
             setGameProcess(room);
 
+            if(room->getMode() == "02_1v1"){
+                QStringList list = player->tag["1v1Arrange"].toStringList();
+
+                if(!list.isEmpty()){
+                    player->tag["1v1ChangeGeneral"] = list.takeFirst();
+                    player->tag["1v1Arrange"] = list;
+
+                    DamageStar damage = data.value<DamageStar>();
+
+                    if(damage == NULL){
+                        changeGeneral1v1(player);
+                        return false;
+                    }
+                }
+            }
 
             break;
         }
@@ -515,7 +522,7 @@ bool GameRule::trigger(TriggerEvent event, ServerPlayer *player, QVariant &data)
             log.from = pindian->to;
             log.card_str = pindian->to_card->getEffectIdString();
             room->sendLog(log);
-            room->getThread()->delay(500);
+            room->getThread()->delay();
 
             foreach(ServerPlayer *player, room->getAlivePlayers()){
                 room->getThread()->trigger(PindianFinish, player, data);

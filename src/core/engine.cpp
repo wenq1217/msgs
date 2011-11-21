@@ -42,6 +42,7 @@ extern "C" {
     Package *NewHuangjin();
     Package *NewYitian();
     Package *NewWisdom();
+    Package *NewTest();
 
     Package *NewStandardCard();
     Package *NewStandardExCard();
@@ -82,13 +83,7 @@ Engine::Engine()
     addPackage(NewHuangjin());
     addPackage(NewYitian());
     addPackage(NewWisdom());
-
-    {
-        Package *test_package = new Package("test");
-        (new General(test_package, "sujiang", "god", 5, true, true));
-        (new General(test_package, "sujiangf", "god", 5, false, true));
-        addPackage(test_package);
-    }
+    addPackage(NewTest());
 
     addPackage(NewStandardCard());
     addPackage(NewStandardExCard());
@@ -304,8 +299,8 @@ const CardPattern *Engine::getPattern(const QString &name) const{
 
 QList<const Skill *> Engine::getRelatedSkills(const QString &skill_name) const{
     QList<const Skill *> skills;
-    foreach(QString skill_name, related_skills.values(skill_name))
-        skills << getSkill(skill_name);
+    foreach(QString name, related_skills.values(skill_name))
+        skills << getSkill(name);
 
     return skills;
 }
@@ -364,11 +359,11 @@ SkillCard *Engine::cloneSkillCard(const QString &name) const{
 }
 
 QString Engine::getVersion() const{
-    return "20110912";
+    return "20111113";
 }
 
 QString Engine::getVersionName() const{
-    return tr("MiddleAutumn");
+    return tr("Chibi");
 }
 
 QStringList Engine::getExtensions() const{

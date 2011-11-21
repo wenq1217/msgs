@@ -84,6 +84,65 @@ public:
     }
 };
 
+class SuperFanjian: public ZeroCardViewAsSkill{
+public:
+    SuperFanjian():ZeroCardViewAsSkill("superfanjian"){
+
+    }
+
+    virtual bool isEnabledAtPlay(const Player *player) const{
+        return !player->isKongcheng() && ! player->hasUsed("SuperFanjianCard");
+    }
+
+    virtual const Card *viewAs() const{
+        return new SuperFanjianCard;
+    }
+};
+
+SuperFanjianCard::SuperFanjianCard(){
+    once = true;
+}
+
+void SuperFanjianCard::onEffect(const CardEffectStruct &effect) const{
+    ServerPlayer *superzhouyu = effect.from;
+    ServerPlayer *target = effect.to;
+    Room *room = superzhouyu->getRoom();
+
+    int card_id = superzhouyu->getRandomHandCardId();
+    const Card *card = Sanguosha->getCard(card_id);
+    Card::Suit suit = room->askForSuit(target);
+
+    LogMessage log;
+    log.type = "#ChooseSuit";
+    log.from = target;
+    log.arg = Card::Suit2String(suit);
+    room->sendLog(log);
+    room->showCard(target, card_id);
+    room->getThread()->delay();
+
+    if(card->getSuit() != suit){
+        DamageStruct damage;
+        damage.card = NULL;
+        damage.from = superzhouyu;
+        damage.to = target;
+
+        if(damage.from->hasSkill("jueqing")){
+            LogMessage log;
+            log.type = "#Jueqing";
+            log.from = damage.from;
+            log.to << damage.to;
+            log.arg = QString::number(1);
+            room->sendLog(log);
+            room->playSkillEffect("jueqing");
+            room->loseHp(damage.to, 1);
+        }else{
+            room->damage(damage);
+        }
+    }
+
+    target->obtainCard(card);
+}
+
 NostalgiaPackage::NostalgiaPackage()
     :Package("nostalgia")
 {
@@ -95,6 +154,12 @@ NostalgiaPackage::NostalgiaPackage()
     General *zhiba_sunquan = new General(this, "zhibasunquan$", "wu", 4);
     zhiba_sunquan->addSkill(new SuperZhiheng);
     zhiba_sunquan->addSkill("jiuyuan");
+
+    General *super_zhouyu = new General(this, "superzhouyu", "wu", 3);
+    super_zhouyu->addSkill("yingzi");
+    super_zhouyu->addSkill(new SuperFanjian);
+
+    addMetaObject<SuperFanjianCard>();
 }
 
 NostalgiaCardPackage::NostalgiaCardPackage()
@@ -106,5 +171,5 @@ NostalgiaCardPackage::NostalgiaCardPackage()
     type = CardPack;
 }
 
-ADD_PACKAGE(Nostalgia);
-ADD_PACKAGE(NostalgiaCard);
+ADD_PACKAGE(Nostalgia)
+ADD_PACKAGE(NostalgiaCard)

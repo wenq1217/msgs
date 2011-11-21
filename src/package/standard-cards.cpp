@@ -24,10 +24,7 @@ bool Slash::IsAvailable(const Player *player){
     if(player->hasFlag("tianyi_failed") || player->hasFlag("xianzhen_failed"))
         return false;
 
-    if(player->hasWeapon("crossbow"))
-        return true;
-    else
-        return player->canSlashWithoutCrossbow();
+    return player->hasWeapon("crossbow") || player->canSlashWithoutCrossbow();
 }
 
 bool Slash::isAvailable(const Player *player) const{
@@ -128,7 +125,8 @@ void Peach::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &t
     if(targets.isEmpty())
         room->cardEffect(this, source, source);
     else
-        room->cardEffect(this, source, targets.first());
+        foreach(ServerPlayer *tmp, targets)
+            room->cardEffect(this, source, tmp);
 }
 
 void Peach::onEffect(const CardEffectStruct &effect) const{
@@ -437,9 +435,18 @@ KylinBow::KylinBow(Suit suit, int number)
 }
 
 class EightDiagramSkill: public ArmorSkill{
-public:
+private:
     EightDiagramSkill():ArmorSkill("eight_diagram"){
         events << CardAsked;
+    }
+
+public:
+    static EightDiagramSkill *GetInstance(){
+        static EightDiagramSkill *instance = NULL;
+        if(instance == NULL)
+            instance = new EightDiagramSkill;
+
+        return instance;
     }
 
     virtual int getPriority() const{
@@ -463,6 +470,7 @@ public:
                     jink->setSkillName(objectName());
                     room->provide(jink);
                     room->setEmotion(player, "good");
+                    room->broadcastInvoke("playAudio", objectName());
 
                     return true;
                 }else
@@ -473,10 +481,12 @@ public:
     }
 };
 
+
+
 EightDiagram::EightDiagram(Suit suit, int number)
     :Armor(suit, number){
     setObjectName("eight_diagram");
-    skill = new EightDiagramSkill;
+    skill = EightDiagramSkill::GetInstance();
 }
 
 AmazingGrace::AmazingGrace(Suit suit, int number)
@@ -485,10 +495,10 @@ AmazingGrace::AmazingGrace(Suit suit, int number)
     setObjectName("amazing_grace");
 }
 
-void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
+void AmazingGrace::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &targets) const{
     room->throwCard(this);
 
-    QList<ServerPlayer *> players = room->getAllPlayers();
+    QList<ServerPlayer *> players = targets.isEmpty() ? room->getAllPlayers() : targets;
     QList<int> card_ids = room->getNCards(players.length());
     room->fillAG(card_ids);
 
@@ -553,7 +563,9 @@ SavageAssault::SavageAssault(Suit suit, int number)
 void SavageAssault::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *slash = room->askForCard(effect.to, "slash", "savage-assault-slash:" + effect.from->objectName());
-    if(slash == NULL){
+    if(slash)
+        room->setEmotion(effect.to, "killer");
+    else{
         DamageStruct damage;
         damage.card = this;
         damage.damage = 1;
@@ -574,7 +586,9 @@ ArcheryAttack::ArcheryAttack(Card::Suit suit, int number)
 void ArcheryAttack::onEffect(const CardEffectStruct &effect) const{
     Room *room = effect.to->getRoom();
     const Card *jink = room->askForCard(effect.to, "jink", "archery-attack-jink:" + effect.from->objectName());
-    if(jink == NULL){
+    if(jink)
+        room->setEmotion(effect.to, "jink");
+    else{
         DamageStruct damage;
         damage.card = this;
         damage.damage = 1;
@@ -592,11 +606,17 @@ void SingleTargetTrick::use(Room *room, ServerPlayer *source, const QList<Server
     CardEffectStruct effect;
     effect.card = this;
     effect.from = source;
-    effect.to = targets.first();
-
-    room->cardEffect(effect);
+    if(!targets.isEmpty()){
+        foreach(ServerPlayer *tmp, targets){
+            effect.to = tmp;
+            room->cardEffect(effect);
+        }
+    }
+    else{
+        effect.to = source;
+        room->cardEffect(effect);
+    }
 }
-
 
 Collateral::Collateral(Card::Suit suit, int number)
     :SingleTargetTrick(suit, number, false)
@@ -605,9 +625,8 @@ Collateral::Collateral(Card::Suit suit, int number)
 }
 
 bool Collateral::isAvailable(const Player *player) const{
-    QList<const Player*> players = player->parent()->findChildren<const Player *>();
-    foreach(const Player *p, players){
-        if(p->getWeapon() != NULL && p != player)
+    foreach(const Player *p, player->getSiblings()){
+        if(p->getWeapon() && p->isAlive())
             return true;
     }
 
@@ -635,7 +654,9 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     room->throwCard(this);
 
     ServerPlayer *killer = targets.at(0);
-    ServerPlayer *victim = targets.at(1);
+    QList<ServerPlayer *> victims = targets;
+    if(victims.length() > 1)
+        victims.removeAt(0);
     const Weapon *weapon = killer->getWeapon();
 
     if(weapon == NULL)
@@ -644,13 +665,13 @@ void Collateral::use(Room *room, ServerPlayer *source, const QList<ServerPlayer 
     bool on_effect = room->cardEffect(this, source, killer);
     if(on_effect){
         QString prompt = QString("collateral-slash:%1:%2")
-                         .arg(source->objectName()).arg(victim->objectName());
+                         .arg(source->objectName()).arg(victims.first()->objectName());
         const Card *slash = room->askForCard(killer, "slash", prompt);
         if(slash){
             CardUseStruct use;
             use.card = slash;
             use.from = killer;
-            use.to << victim;
+            use.to = victims;
             room->useCard(use);
         }else{
             source->obtainCard(weapon);
@@ -678,16 +699,6 @@ ExNihilo::ExNihilo(Suit suit, int number)
 {
     setObjectName("ex_nihilo");
     target_fixed = true;
-}
-
-void ExNihilo::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->throwCard(this);
-
-    CardEffectStruct effect;
-    effect.from = effect.to = source;
-    effect.card = this;
-
-    room->cardEffect(effect);
 }
 
 void ExNihilo::onEffect(const CardEffectStruct &effect) const{
@@ -852,10 +863,6 @@ bool Disaster::isAvailable(const Player *player) const{
         return false;
 
     return ! player->isProhibited(player, this);
-}
-
-void Disaster::use(Room *room, ServerPlayer *source, const QList<ServerPlayer *> &) const{
-    room->moveCardTo(this, source, Player::Judging);
 }
 
 Lightning::Lightning(Suit suit, int number):Disaster(suit, number){
@@ -1044,6 +1051,8 @@ StandardCardPackage::StandardCardPackage()
 
           << new EightDiagram(Card::Spade)
           << new EightDiagram(Card::Club);
+
+    skills << EightDiagramSkill::GetInstance();
 
     {
         QList<Card *> horses;

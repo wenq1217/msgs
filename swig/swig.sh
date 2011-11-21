@@ -1,3 +1,3 @@
 #!/bin/sh
 
-swig -c++ -lua sanguosha.i
+"C:\Program Files\swig\swig.exe" -c++ -lua sanguosha.i

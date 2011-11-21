@@ -4,6 +4,14 @@
 #include "package.h"
 #include "card.h"
 
+class SuperFanjianCard: public SkillCard{
+    Q_OBJECT
+
+public:
+    Q_INVOKABLE SuperFanjianCard();
+    virtual void onEffect(const CardEffectStruct &effect) const;
+};
+
 class NostalgiaPackage: public Package{
     Q_OBJECT
 

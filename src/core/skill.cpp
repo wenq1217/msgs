@@ -3,10 +3,9 @@
 #include "player.h"
 #include "room.h"
 #include "client.h"
-#include "settings.h"
 #include "standard.h"
 #include "scenario.h"
-
+#include "settings.h"
 #include <QFile>
 
 Skill::Skill(const QString &name, Frequency frequency)
@@ -198,10 +197,12 @@ QList<TriggerEvent> TriggerSkill::getTriggerEvents() const{
 }
 
 int TriggerSkill::getPriority() const{
-    if(frequency == Compulsory)
-        return 2;
-    else
+    switch(frequency){
+    case Compulsory:
+    case Wake: return 2;
+    default:
         return 1;
+    }
 }
 
 bool TriggerSkill::triggerable(const ServerPlayer *target) const{

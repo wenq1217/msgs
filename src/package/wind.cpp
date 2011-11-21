@@ -144,7 +144,7 @@ public:
         QString prompt = prompt_list.join(":");
 
         player->tag["Judge"] = data;
-        const Card *card = room->askForCard(player, "@guidao", prompt);
+        const Card *card = room->askForCard(player, "@guidao", prompt, data);
 
         if(card){
             // the only difference for Guicai & Guidao
@@ -386,14 +386,20 @@ class Kuanggu: public TriggerSkill{
 public:
     Kuanggu():TriggerSkill("kuanggu"){
         frequency = Compulsory;
-        events << Predamage << Damage;
+        events << Damage << DamageDone;
+    }
+
+    virtual bool triggerable(const ServerPlayer *target) const{
+        return true;
     }
 
     virtual bool trigger(TriggerEvent event, ServerPlayer *player, QVariant &data) const{
         DamageStruct damage = data.value<DamageStruct>();
-        if(event == Predamage){
-            player->tag["InvokeKuanggu"] = player->distanceTo(damage.to) <= 1;
-        }else if(event == Damage){
+
+        if(event == DamageDone && damage.from && damage.from->hasSkill("kuanggu") && damage.from->isAlive()){
+            ServerPlayer *weiyan = damage.from;
+            weiyan->tag["InvokeKuanggu"] = weiyan->distanceTo(damage.to) <= 1;
+        }else if(event == Damage && player->hasSkill("kuanggu") && player->isAlive()){
             bool invoke = player->tag.value("InvokeKuanggu", false).toBool();
             if(invoke){
                 Room *room = player->getRoom();
@@ -401,9 +407,9 @@ public:
                 room->playSkillEffect(objectName());
 
                 LogMessage log;
-                log.type = "#KuangguRecover";
+                log.type = "#TriggerSkill";
                 log.from = player;
-                log.arg = QString::number(damage.damage);
+                log.arg = objectName();
                 room->sendLog(log);
 
                 RecoverStruct recover;
@@ -488,18 +494,52 @@ public:
             if(zhoutai->getHp() > 0)
                 return false;
 
+            QList<int> duplicate_numbers;
+
             QSet<int> numbers;
             foreach(int card_id, buqu){
                 const Card *card = Sanguosha->getCard(card_id);
-                numbers << card->getNumber();
+                int number = card->getNumber();
+
+                if(numbers.contains(number)){
+                    duplicate_numbers << number;
+                }else
+                    numbers << number;
             }
 
-            bool duplicated = numbers.size() < buqu.size();
-            if(!duplicated){
+            if(duplicate_numbers.isEmpty()){
                 QString choice = room->askForChoice(zhoutai, objectName(), "alive+dead");
                 if(choice == "alive"){
                     room->playSkillEffect(objectName());
                     return true;
+                }
+            }else{
+                LogMessage log;
+                log.type = "#BuquDuplicate";
+                log.from = zhoutai;
+                log.arg = QString::number(duplicate_numbers.length());
+                room->sendLog(log);
+
+                for(int i=0; i<duplicate_numbers.length(); i++){
+                    int number = duplicate_numbers.at(i);
+
+                    LogMessage log;
+                    log.type = "#BuquDuplicateGroup";
+                    log.from = zhoutai;
+                    log.arg = QString::number(i+1);
+                    log.arg2 = Card::Number2String(number);
+                    room->sendLog(log);
+
+                    foreach(int card_id, buqu){
+                        const Card *card = Sanguosha->getCard(card_id);
+                        if(card->getNumber() == number){
+                            LogMessage log;
+                            log.type = "$BuquDuplicateItem";
+                            log.from = zhoutai;
+                            log.card_str = QString::number(card_id);
+                            room->sendLog(log);
+                        }
+                    }
                 }
             }
         }
